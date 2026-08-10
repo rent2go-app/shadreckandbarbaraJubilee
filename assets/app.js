@@ -269,6 +269,23 @@ const NAV_LINKS = [
   { key: 'admin',     href: 'admin.html',   label: 'Family login' }
 ];
 
+/* Submission deadline — end of Friday 28 August 2026 (CAT). One source of
+   truth for the top bar and the landing-page band. */
+const DEADLINE = new Date('2026-08-28T23:59:59+02:00');
+const deadlineDaysLeft = () => Math.ceil((DEADLINE - new Date()) / 86400000);
+
+function deadlineBar(){
+  const d = deadlineDaysLeft();
+  const urgent = d >= 0 && d <= 7;
+  const line = d > 1  ? `Share your story by <strong>Friday 28 August</strong> &nbsp;&middot;&nbsp; ${d} days left`
+             : d === 1 ? `<strong>Last day</strong> to share your story &mdash; Friday 28 August`
+             : d === 0 ? `<strong>Today is the last day</strong> to share your story`
+             : `Stories are still welcome &mdash; they reach Gogo &amp; Khulu, but are not played on the night`;
+  return `<a class="topbar${urgent ? ' urgent' : ''}${d < 0 ? ' closed' : ''}" href="share.html">
+            <span>${line}</span>
+          </a>`;
+}
+
 function mountNav(active = ''){
   const mount = document.getElementById('nav-mount');
   if (!mount) return;
@@ -279,6 +296,7 @@ function mountNav(active = ''){
   }).join('');
 
   mount.outerHTML = `
+    ${deadlineBar()}
     <nav class="nav">
       <div class="wrap">
         <a class="brand" href="index.html">Shadreck <span>&amp;</span> Barbara</a>
