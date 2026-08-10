@@ -347,6 +347,24 @@ body.wall{
 .wall-qr{text-align:center}
 /* big enough to scan from the back of the room */
 .wall-qr img{width:min(48vh,480px);aspect-ratio:1;background:#fff;padding:22px;border-radius:14px;margin:0 auto 2.4rem}
+/* exit + keyboard hints — fade in on movement, out again after a moment */
+.wall-controls{
+  position:fixed;top:22px;left:50%;transform:translateX(-50%) translateY(-16px);
+  display:flex;gap:1.4rem;align-items:center;z-index:12;
+  opacity:0;visibility:hidden;transition:opacity .35s ease,transform .35s ease,visibility .35s
+}
+.wall-controls.in{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
+.wall-exit{
+  display:inline-block;padding:.55rem 1.3rem;border-radius:999px;
+  border:1px solid rgba(217,185,120,.55);background:rgba(20,17,13,.85);
+  color:var(--gold-lt);text-decoration:none;font-size:.9rem;font-weight:600;
+  font-family:var(--sans);backdrop-filter:blur(6px)
+}
+.wall-exit:hover{background:var(--gold);color:#241f19;border-color:var(--gold)}
+.wall-help{
+  font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;
+  color:#7d7263;font-family:var(--sans)
+}
 .wall-progress{position:fixed;left:0;bottom:0;height:3px;background:var(--gold);width:0;transition:width .25s linear}
 .wall-count{position:fixed;right:26px;bottom:20px;font-size:.8rem;color:#6d6353;letter-spacing:.12em}
 .wall-toast{

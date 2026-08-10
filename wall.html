@@ -26,6 +26,13 @@
 <div class="wall-count"   id="counter"></div>
 <div class="wall-toast"   id="toast"></div>
 
+<!-- Escape hatch. Fades in on mouse movement so it never sits over a
+     testimony during the celebration, but is always one nudge away. -->
+<div class="wall-controls" id="controls">
+  <a class="wall-exit" href="index.html">&#10005;&nbsp; Exit slideshow</a>
+  <span class="wall-help">Space pause &middot; &larr; &rarr; move &middot; F fullscreen &middot; M music</span>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script src="assets/supabase-config.js"></script>
@@ -228,7 +235,24 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowRight'){ next(1); }
   if (e.key === 'ArrowLeft') { next(-1); }
   if (e.key === 'm' || e.key === 'M'){ toggleMusic(); }
+  if (e.key === 'Escape' && !document.fullscreenElement){ location.href = 'index.html'; }
 });
+
+/* Show the exit control whenever anyone touches the machine, then let it
+   fade back out so the screen stays clean for the room. */
+const controls = document.getElementById('controls');
+let hideControls = null;
+function wakeControls(){
+  controls.classList.add('in');
+  document.body.style.cursor = 'default';
+  clearTimeout(hideControls);
+  hideControls = setTimeout(() => {
+    controls.classList.remove('in');
+    document.body.style.cursor = 'none';
+  }, 3500);
+}
+['mousemove','touchstart','click'].forEach(ev => document.addEventListener(ev, wakeControls));
+wakeControls();
 
 /* Optional background music. Runs silent by default — press M and choose
    a file from this machine. Nothing is uploaded and nothing is stored, so
