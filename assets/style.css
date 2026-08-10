@@ -137,6 +137,41 @@ p{margin:0 0 1.1em}
 section{padding:clamp(3.5rem,7vw,5.5rem) 0}
 section.tint{background:var(--cream);border-block:1px solid var(--line)}
 
+/* ---------- submission deadline ----------
+   Has to be unmissable without shouting: the weight sits in the date
+   itself, not in colour or boxes. */
+.deadline{
+  background:var(--ink);color:var(--cream);
+  padding:clamp(2.6rem,5vw,3.8rem) 0;text-align:center;
+  border-block:1px solid rgba(217,185,120,.3)
+}
+.deadline-label{
+  font-size:.76rem;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--gold-lt);margin:0 0 .7rem;font-weight:600
+}
+.deadline-date{
+  font-family:var(--serif);font-weight:600;
+  font-size:clamp(2.4rem,6vw,4rem);line-height:1;margin:0;
+  background:linear-gradient(160deg,#f0dcae,var(--gold-lt),var(--gold));
+  -webkit-background-clip:text;background-clip:text;color:transparent
+}
+.deadline-rule{
+  width:60px;height:1px;background:rgba(217,185,120,.55);margin:1.6rem auto 1.4rem
+}
+.deadline-note{
+  font-size:1.05rem;color:#e6dcc6;margin:0 auto;max-width:46ch
+}
+.deadline-note strong{color:#fff}
+.deadline-after{
+  font-size:.85rem;line-height:1.6;color:#9a8f7c;margin:1.4rem auto 0;max-width:52ch
+}
+.deadline-days{
+  display:inline-block;margin-top:1.3rem;padding:.35rem 1rem;border-radius:999px;
+  border:1px solid rgba(217,185,120,.4);font-size:.76rem;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--gold-lt);font-weight:600
+}
+.deadline-days.closed{border-color:rgba(255,255,255,.18);color:#9a8f7c}
+
 /* ---------- invitation ---------- */
 .invite-grid{
   display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1fr);

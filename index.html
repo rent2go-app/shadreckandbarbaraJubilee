@@ -38,7 +38,7 @@
       </p>
       <a class="btn" href="share.html">Add your story</a>
       <p class="small muted" style="margin-top:1.2rem">
-        It takes about three minutes. A photograph is welcome but not required.
+        It takes about three minutes. Bring a photograph of yourself and up to 300 words.
       </p>
       <p class="countdown" id="countdown"></p>
     </div>
@@ -50,6 +50,23 @@
     </figure>
   </div>
 </header>
+
+<aside class="deadline" aria-label="Submission deadline">
+  <div class="wrap narrow center">
+    <p class="deadline-label">Please share your story by</p>
+    <p class="deadline-date">Friday, 28 August</p>
+    <div class="deadline-rule"></div>
+    <p class="deadline-note">
+      Stories received by this date are read on the screens at the celebration
+      and printed in the Jubilee book.
+    </p>
+    <p><span class="deadline-days" id="deadline-days"></span></p>
+    <p class="deadline-after" id="deadline-after">
+      Later than that is still welcome — it simply won&rsquo;t be played on the night.
+      Every story, whenever it arrives, still reaches Gogo and Khulu Nkala to read.
+    </p>
+  </div>
+</aside>
 
 <section id="invitation">
   <div class="wrap narrow center reveal">
@@ -180,6 +197,26 @@ function paint(stories){
 }
 
 async function load(){ paint(await fetchPublicStories({ surface: 'landing', limit: LIMIT })); }
+
+/* Days left to submit. Closes end of Friday 28 August 2026 (CAT / UTC+2);
+   after that the band stops counting and softens its wording, so nobody
+   who arrives late is told they have missed their chance. */
+(function deadline(){
+  const pill  = document.getElementById('deadline-days');
+  const after = document.getElementById('deadline-after');
+  const cutoff = new Date('2026-08-28T23:59:59+02:00');
+  const days = Math.ceil((cutoff - new Date()) / 86400000);
+
+  if (days > 1)       pill.textContent = `${days} days left to be part of the night`;
+  else if (days === 1) pill.textContent = 'Last day to be part of the night';
+  else if (days === 0) pill.textContent = 'Closing today';
+  else {
+    pill.textContent = 'The screen list is now closed';
+    pill.classList.add('closed');
+    after.innerHTML = 'Stories are still very welcome. They won&rsquo;t be played on the night, ' +
+      'but every one still reaches Gogo and Khulu Nkala to read, and joins the family archive.';
+  }
+})();
 
 /* Countdown to the celebration: Saturday 29 August 2026, 15:00 (CAT / UTC+2) */
 (function countdown(){
