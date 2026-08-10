@@ -60,7 +60,14 @@ begin
                  'from',    'Jubilee Stories <onboarding@resend.dev>',
                  'to',      jsonb_build_array(to_addr),
                  'subject', 'New Jubilee story from ' || coalesce(new.full_name,'a guest'),
-                 'html',    body)
+                 'html',    body,
+                 -- Marks this as notification mail rather than personal
+                 -- correspondence. Gmail treats that as a hint toward the
+                 -- Updates tab — a hint, not a guarantee. A Gmail filter on
+                 -- the sender is the only deterministic way to place it.
+                 'headers', jsonb_build_object(
+                   'List-Unsubscribe', '<mailto:' || to_addr || '?subject=unsubscribe>',
+                   'X-Entity-Ref-ID',  new.id::text))
   );
 
   return null;
