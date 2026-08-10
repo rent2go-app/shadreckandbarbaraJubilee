@@ -53,9 +53,12 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
 const initials = name => String(name || '?').trim().split(/\s+/)
   .slice(0, 2).map(w => w[0]).join('').toUpperCase();
 
+/* Contributors now describe the relationship in their own words, so the
+   stored value is free text. Older rows used fixed keys — map those, and
+   otherwise show exactly what the person wrote. */
 function relationshipLabel(s){
   if (s.relationship === 'other') return s.relationship_other || '';
-  return RELATIONSHIPS[s.relationship] || '';
+  return RELATIONSHIPS[s.relationship] || s.relationship || '';
 }
 
 /* Byline under a story: "Their grandchild · Bulawayo" */

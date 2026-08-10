@@ -48,14 +48,6 @@
       <input type="text" id="q" placeholder="Search names, places, words&hellip;" aria-label="Search stories">
       <select id="rel" aria-label="Filter by relationship">
         <option value="">Everyone</option>
-        <option value="child">Their children</option>
-        <option value="grandchild">Their grandchildren</option>
-        <option value="sibling">Brothers &amp; sisters</option>
-        <option value="family">Family</option>
-        <option value="friend">Friends</option>
-        <option value="church">Church family</option>
-        <option value="colleague">Colleagues</option>
-        <option value="other">Others</option>
       </select>
       <select id="type" aria-label="Filter by kind of story">
         <option value="">All kinds</option>
@@ -96,7 +88,7 @@ const $ = id => document.getElementById(id);
 
 function matches(s){
   const q = $('q').value.trim().toLowerCase();
-  if ($('rel').value  && s.relationship !== $('rel').value)  return false;
+  if ($('rel').value  && relationshipLabel(s) !== $('rel').value) return false;
   if ($('type').value && s.story_type   !== $('type').value) return false;
   if (!q) return true;
   return [s.full_name, s.location, s.public_message, s.love_is_quote, s.relationship_other]
@@ -124,8 +116,20 @@ function render(){
   initReveal();
 }
 
+/* Relationships are free text, so the filter is built from what people
+   actually wrote rather than a fixed list we guessed at. */
+function buildRelationshipFilter(){
+  const sel = $('rel'), keep = sel.value;
+  const seen = [...new Set(all.map(relationshipLabel).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b));
+  sel.innerHTML = '<option value="">Everyone</option>' +
+    seen.map(r => `<option value="${esc(r)}">${esc(r)}</option>`).join('');
+  sel.value = seen.includes(keep) ? keep : '';
+}
+
 async function load(){
   all = await fetchPublicStories({ surface: 'landing', limit: 500 });
+  buildRelationshipFilter();
   render();
 }
 

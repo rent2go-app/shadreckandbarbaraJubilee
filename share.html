@@ -58,23 +58,11 @@
       </div>
 
       <div class="field">
-        <label for="relationship">How do you know Shadreck and Barbara? <span class="req">*</span></label>
-        <select id="relationship" required>
-          <option value="">Choose one&hellip;</option>
-          <option value="child">Their child</option>
-          <option value="grandchild">Their grandchild</option>
-          <option value="sibling">Their brother or sister</option>
-          <option value="family">Family</option>
-          <option value="friend">A friend</option>
-          <option value="church">Church family</option>
-          <option value="colleague">A colleague</option>
-          <option value="other">Another way&hellip;</option>
-        </select>
-      </div>
-
-      <div class="field" id="other-wrap" hidden>
-        <label for="relationship_other">Tell us how</label>
-        <input type="text" id="relationship_other" maxlength="120" placeholder="Their neighbour for thirty years">
+        <label for="relationship">Who are you to Shadreck and Barbara? <span class="req">*</span></label>
+        <input type="text" id="relationship" maxlength="120" required
+               placeholder="Their eldest granddaughter">
+        <p class="hint">In your own words &mdash; &ldquo;their son&rdquo;, &ldquo;Barbara&rsquo;s friend since 1981&rdquo;,
+          &ldquo;the neighbour they fed every Sunday&rdquo;. This is printed under your story.</p>
       </div>
 
       <div class="field">
@@ -90,10 +78,11 @@
 
       <div class="field">
         <label for="original_message">Your story <span class="req">*</span></label>
-        <textarea id="original_message" maxlength="4000" required
+        <textarea id="original_message" required
           placeholder="Start anywhere. A Sunday afternoon, a piece of advice, the way they made room for people&hellip;"></textarea>
-        <div class="counter" id="counter">0 / 4000 &middot; at least 20 characters</div>
-        <p class="hint">Your words are stored exactly as you write them. If we tidy a typo for the printed book, the original is always kept.</p>
+        <div class="counter" id="counter">0 of 300 words</div>
+        <p class="hint">Up to 300 words &mdash; about the length that reads well on the big screen and fits one
+          page of the book. Your words are stored exactly as you write them.</p>
       </div>
 
       <div class="field">
@@ -103,12 +92,12 @@
       </div>
 
       <div class="field">
-        <label>A photograph of you</label>
+        <label>A photograph of you <span class="req">*</span></label>
         <div class="dropzone" id="drop">
           <div id="drop-idle">
             <p class="serif" style="font-size:2rem;color:var(--gold);margin:0 0 .3rem">&#128247;</p>
             <p style="margin:0"><strong>Tap to add a selfie or photo</strong></p>
-            <p class="small muted" style="margin:.3rem 0 0">JPG, PNG, WEBP or HEIC &middot; up to 15MB &middot; optional</p>
+            <p class="small muted" style="margin:.3rem 0 0">JPG, PNG, WEBP or HEIC &middot; up to 15MB &middot; required</p>
           </div>
           <div id="drop-preview" hidden>
             <img class="preview" id="preview" alt="Your photograph">
@@ -175,17 +164,18 @@ if (!JUBILEE_CONFIGURED){
      database, so nothing sent from here will be saved. Finish steps 1&ndash;5 of SETUP.md first.</div>`;
 }
 
-/* --- relationship "other" ------------------------------------ */
-$('relationship').addEventListener('change', e => {
-  $('other-wrap').hidden = e.target.value !== 'other';
-});
+/* --- word counter (300-word limit) --------------------------- */
+const MAX_WORDS = 300;
+const wordCount = t => t.trim().split(/\s+/).filter(Boolean).length;
 
-/* --- character counter --------------------------------------- */
 const msg = $('original_message'), counter = $('counter');
 msg.addEventListener('input', () => {
-  const n = msg.value.trim().length;
-  counter.textContent = `${n} / 4000` + (n < 20 ? ' · at least 20 characters' : '');
-  counter.classList.toggle('over', n > 4000);
+  const n = wordCount(msg.value);
+  const over = n > MAX_WORDS;
+  counter.textContent = over
+    ? `${n} of ${MAX_WORDS} words — ${n - MAX_WORDS} too many`
+    : `${n} of ${MAX_WORDS} words`;
+  counter.classList.toggle('over', over);
 });
 
 /* --- photo picker -------------------------------------------- */
@@ -233,27 +223,31 @@ form.addEventListener('submit', async e => {
     return;
   }
 
-  const name = $('full_name').value.trim();
-  const text = msg.value.trim();
+  const name  = $('full_name').value.trim();
+  const rel   = $('relationship').value.trim();
+  const text  = msg.value.trim();
+  const words = wordCount(text);
 
-  if (name.length < 2)          return notify('err', 'Please tell us your name.');
-  if (!$('relationship').value) return notify('err', 'Please tell us how you know Shadreck and Barbara.');
-  if (text.length < 20)         return notify('err', 'Please write at least a couple of sentences.');
-  if (!$('consent').checked)    return notify('err', 'We need your permission before we can share your story.');
+  if (name.length < 2)       return notify('err', 'Please tell us your name.');
+  if (rel.length < 2)        return notify('err', 'Please tell us who you are to Shadreck and Barbara.');
+  if (text.length < 20)      return notify('err', 'Please write at least a couple of sentences.');
+  if (words > MAX_WORDS)     return notify('err',
+    `Your story is ${words} words — please shorten it to ${MAX_WORDS} or fewer so it reads well on the screen and fits the book.`);
+  if (!photoFile)            return notify('err', 'Please add a photograph of yourself — every story in the book has a face beside it.');
+  if (!$('consent').checked) return notify('err', 'We need your permission before we can share your story.');
 
   btn.disabled = true;
   const setBusy = t => { btn.innerHTML = `<span class="spinner"></span>${esc(t)}`; };
   setBusy('Sending…');
 
   try {
-    let media = {};
-    if (photoFile) media = await uploadPhotoSet(photoFile, setBusy);
+    const media = await uploadPhotoSet(photoFile, setBusy);
 
     setBusy('Saving your story…');
     const { error } = await db.from('stories').insert({
       full_name:          name,
-      relationship:       $('relationship').value,
-      relationship_other: $('relationship_other').value.trim() || null,
+      relationship:       rel,
+      relationship_other: null,
       location:           $('location').value.trim() || null,
       email:              $('email').value.trim() || null,
       phone:              $('phone').value.trim() || null,
