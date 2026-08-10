@@ -25,6 +25,23 @@
 
 <div id="nav-mount"></div>
 
+<section class="ticker" id="ticker" aria-label="Time remaining to share your story">
+  <div class="wrap">
+    <p class="ticker-label" id="ticker-label">Stories close for the night in</p>
+    <div class="ticker-clock" id="ticker-clock" role="timer" aria-live="off">
+      <div class="unit"><span class="num" id="t-d">--</span><span class="cap">days</span></div>
+      <div class="unit"><span class="num" id="t-h">--</span><span class="cap">hours</span></div>
+      <div class="unit"><span class="num" id="t-m">--</span><span class="cap">minutes</span></div>
+      <div class="unit"><span class="num" id="t-s">--</span><span class="cap">seconds</span></div>
+    </div>
+    <p class="ticker-foot">
+      Closing <strong>Friday 28 August</strong> &mdash; so your story can be played on the
+      screens and printed in the book.
+      <a href="share.html">Share yours now &rarr;</a>
+    </p>
+  </div>
+</section>
+
 <header class="hero">
   <div class="wrap hero-grid">
     <div class="hero-copy">
@@ -197,6 +214,33 @@ function paint(stories){
 }
 
 async function load(){ paint(await fetchPublicStories({ surface: 'landing', limit: LIMIT })); }
+
+/* Live countdown under the menu. DEADLINE lives in app.js so the top bar,
+   this clock and the band below can never drift apart. */
+(function ticker(){
+  const strip = document.getElementById('ticker');
+  const label = document.getElementById('ticker-label');
+  const pad = n => String(n).padStart(2, '0');
+
+  function tick(){
+    const left = DEADLINE - new Date();
+
+    if (left <= 0){
+      strip.classList.add('closed');
+      label.textContent = 'Stories are closed for the night — but still very welcome for Gogo & Khulu to read';
+      clearInterval(handle);
+      return;
+    }
+    const s = Math.floor(left / 1000);
+    document.getElementById('t-d').textContent = Math.floor(s / 86400);
+    document.getElementById('t-h').textContent = pad(Math.floor(s % 86400 / 3600));
+    document.getElementById('t-m').textContent = pad(Math.floor(s % 3600 / 60));
+    document.getElementById('t-s').textContent = pad(s % 60);
+  }
+
+  tick();
+  const handle = setInterval(tick, 1000);
+})();
 
 /* Days left to submit. Closes end of Friday 28 August 2026 (CAT / UTC+2);
    after that the band stops counting and softens its wording, so nobody

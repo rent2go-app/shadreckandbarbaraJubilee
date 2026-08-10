@@ -535,3 +535,51 @@ footer a{color:var(--gold-lt)}
   .book-page{width:100%;min-height:0;padding:1.6rem 1.3rem}
   .book-page .bp-photo{width:36vw;max-width:150px;margin:0 0 1rem 1rem}
 }
+
+/* ============================================================
+   COUNTDOWN TICKER — sits directly under the menu on the home page.
+   The top bar states the date; this makes the time left feel real.
+   ============================================================ */
+.ticker{
+  background:linear-gradient(180deg,#2b241c,var(--ink));
+  color:var(--cream);padding:1.9rem 0 1.7rem;text-align:center;
+  border-bottom:1px solid rgba(217,185,120,.28)
+}
+.ticker-label{
+  font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--gold-lt);font-weight:600;margin:0 0 1.1rem
+}
+.ticker-clock{display:flex;justify-content:center;gap:.7rem;flex-wrap:wrap}
+.ticker .unit{
+  min-width:86px;padding:.75rem .6rem .6rem;border-radius:10px;
+  background:rgba(255,255,255,.045);border:1px solid rgba(217,185,120,.28)
+}
+.ticker .num{
+  display:block;font-family:var(--serif);font-weight:600;
+  font-size:2.5rem;line-height:1;
+  background:linear-gradient(160deg,#f4e2b6,var(--gold-lt),var(--gold));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  font-variant-numeric:tabular-nums
+}
+.ticker .cap{
+  display:block;margin-top:.4rem;font-size:.62rem;letter-spacing:.2em;
+  text-transform:uppercase;color:#9a8f7c;font-weight:600
+}
+.ticker-foot{
+  margin:1.3rem auto 0;font-size:.9rem;color:#b7ac97;max-width:56ch
+}
+.ticker-foot strong{color:var(--cream)}
+.ticker-foot a{color:var(--gold-lt);font-weight:600;white-space:nowrap;margin-left:.35rem}
+/* after the deadline the clock is meaningless — the wording carries it */
+.ticker.closed .ticker-clock{display:none}
+.ticker.closed .ticker-label{color:#9a8f7c;letter-spacing:.14em;font-size:.9rem;text-transform:none}
+
+@media(max-width:640px){
+  .ticker{padding:1.4rem 0 1.3rem}
+  .ticker-clock{gap:.45rem}
+  .ticker .unit{min-width:0;flex:1 1 0;padding:.6rem .3rem .5rem}
+  .ticker .num{font-size:1.85rem}
+  .ticker .cap{font-size:.55rem;letter-spacing:.12em}
+  .ticker-foot{font-size:.82rem;margin-top:1rem}
+  .ticker-foot a{display:block;margin:.4rem 0 0}
+}
