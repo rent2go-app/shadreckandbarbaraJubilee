@@ -33,15 +33,7 @@
 </head>
 <body>
 
-<nav class="nav">
-  <div class="wrap">
-    <a class="brand" href="index.html">Shadreck <span>&amp;</span> Barbara</a>
-    <div class="nav-links">
-      <a href="index.html">Home</a>
-      <a class="btn sm" href="share.html">Share your story</a>
-    </div>
-  </div>
-</nav>
+<div id="nav-mount"></div>
 
 <section>
   <div class="wrap">
@@ -97,6 +89,7 @@
 <script src="assets/supabase-config.js"></script>
 <script src="assets/app.js"></script>
 <script>
+mountNav("stories");
 let all = [];
 const tray = document.getElementById('tray');
 const $ = id => document.getElementById(id);

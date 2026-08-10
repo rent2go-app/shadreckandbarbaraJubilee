@@ -255,6 +255,45 @@ function storyCard(s, opts = {}){
     </article>`;
 }
 
+/* ---------- shared navigation ----------
+   One definition for every page. Put <div id="nav-mount"></div> in a page
+   and call mountNav('<key>'). Keeps the links identical everywhere. */
+
+const NAV_LINKS = [
+  { key: 'home',      href: 'index.html',   label: 'Home' },
+  { key: 'stories',   href: 'stories.html', label: 'Stories' },
+  { key: 'slideshow', href: 'wall.html',    label: 'Slideshow', target: '_blank' },
+  { key: 'admin',     href: 'admin.html',   label: 'Family login' }
+];
+
+function mountNav(active = ''){
+  const mount = document.getElementById('nav-mount');
+  if (!mount) return;
+
+  const links = NAV_LINKS.map(l => {
+    const tgt = l.target ? ` target="${l.target}" rel="noopener"` : '';
+    return `<a href="${l.href}"${tgt}${l.key === active ? ' class="active"' : ''}>${l.label}</a>`;
+  }).join('');
+
+  mount.outerHTML = `
+    <nav class="nav">
+      <div class="wrap">
+        <a class="brand" href="index.html">Shadreck <span>&amp;</span> Barbara</a>
+        <button class="nav-toggle" id="nav-toggle" aria-label="Menu" aria-expanded="false">&#9776;</button>
+        <div class="nav-links" id="nav-links">
+          ${links}
+          <a class="btn sm" href="share.html">Share your story</a>
+        </div>
+      </div>
+    </nav>`;
+
+  const toggle = document.getElementById('nav-toggle');
+  toggle.addEventListener('click', () => {
+    const open = document.getElementById('nav-links').classList.toggle('open');
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+}
+
 /* ---------- scroll reveal ---------- */
 
 function initReveal(){

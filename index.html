@@ -13,16 +13,7 @@
 </head>
 <body>
 
-<nav class="nav">
-  <div class="wrap">
-    <a class="brand" href="index.html">Shadreck <span>&amp;</span> Barbara</a>
-    <div class="nav-links">
-      <a href="#invitation">The invitation</a>
-      <a href="stories.html">Stories</a>
-      <a class="btn sm" href="share.html">Share your story</a>
-    </div>
-  </div>
-</nav>
+<div id="nav-mount"></div>
 
 <header class="hero">
   <div class="wrap hero-grid">
@@ -93,9 +84,13 @@
 
     <div class="tray" id="tray" style="margin-top:2.5rem"></div>
 
-    <div class="center" style="margin-top:3rem">
+    <div class="center" style="margin-top:3rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
       <a class="btn ghost" href="stories.html">Read every story</a>
+      <a class="btn" href="wall.html" target="_blank" rel="noopener">&#9654;&nbsp; Play as a slideshow</a>
     </div>
+    <p class="center small muted" style="margin-top:1rem">
+      Full screen, one testimony at a time &mdash; for the celebration, or just to sit and read.
+    </p>
   </div>
 </section>
 
@@ -153,6 +148,7 @@
 <script src="assets/supabase-config.js"></script>
 <script src="assets/app.js"></script>
 <script>
+mountNav("home");
 const tray  = document.getElementById('tray');
 const count = document.getElementById('story-count');
 const LIMIT = 9;

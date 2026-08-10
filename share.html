@@ -13,12 +13,7 @@
 </head>
 <body>
 
-<nav class="nav">
-  <div class="wrap">
-    <a class="brand" href="index.html">Shadreck <span>&amp;</span> Barbara</a>
-    <div class="nav-links"><a href="stories.html">Stories</a></div>
-  </div>
-</nav>
+<div id="nav-mount"></div>
 
 <section>
   <div class="wrap narrow">
@@ -164,6 +159,7 @@
 <script src="assets/supabase-config.js"></script>
 <script src="assets/app.js"></script>
 <script>
+mountNav("share");
 const form    = document.getElementById('form');
 const alertEl = document.getElementById('alert');
 const btn     = document.getElementById('submit');

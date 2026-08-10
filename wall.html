@@ -176,16 +176,27 @@ function next(step = 1){
   if (index === 0 && step > 0 && settings.randomize_stories) queue = shuffle(queue);
 
   shownSince++;
-  show(storySlide(queue[index]));
+  const story = queue[index];
+  show(storySlide(story));
   paintCounter();
-  schedule();
+  schedule(readingTime(story));
 }
 
-function schedule(){
+/* How long this particular testimony needs on screen.
+   Unhurried reading is ~160 words a minute out loud, and a room reads a
+   screen slower than a person reads a page. Two seconds to settle, two to
+   land, and never less than the configured minimum. */
+function readingTime(story){
+  const words = String(story.public_message || '').trim().split(/\s+/).filter(Boolean).length;
+  const quote = story.love_is_quote ? 2 : 0;
+  const seconds = 2 + (words / 160) * 60 + 2 + quote;
+  return Math.max(settings.rotation_seconds, Math.round(seconds)) * 1000;
+}
+
+function schedule(ms = settings.rotation_seconds * 1000){
   clearTimeout(timer); clearInterval(ticker);
   if (paused) return;
 
-  const ms = settings.rotation_seconds * 1000;
   const started = Date.now();
   progressEl.style.width = '0%';
 
@@ -216,7 +227,27 @@ document.addEventListener('keydown', e => {
   }
   if (e.key === 'ArrowRight'){ next(1); }
   if (e.key === 'ArrowLeft') { next(-1); }
+  if (e.key === 'm' || e.key === 'M'){ toggleMusic(); }
 });
+
+/* Optional background music. Runs silent by default — press M and choose
+   a file from this machine. Nothing is uploaded and nothing is stored, so
+   the family can use whatever track they already own on the night. */
+let audio = null;
+function toggleMusic(){
+  if (audio && !audio.paused){ audio.pause(); toast('Music off'); return; }
+  if (audio){ audio.play(); toast('Music on'); return; }
+  const picker = document.createElement('input');
+  picker.type = 'file'; picker.accept = 'audio/*';
+  picker.addEventListener('change', () => {
+    const f = picker.files[0];
+    if (!f) return;
+    audio = new Audio(URL.createObjectURL(f));
+    audio.loop = true; audio.volume = 0.4;
+    audio.play().then(() => toast('Music on — press M to mute')).catch(() => toast('Could not play that file'));
+  });
+  picker.click();
+}
 
 /* ---------- start ---------- */
 
