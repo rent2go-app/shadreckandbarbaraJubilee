@@ -14,6 +14,8 @@
 <body>
 
 <!-- ================= login ================= -->
+<div id="nav-mount"></div>
+
 <section id="gate">
   <div class="wrap narrow">
     <div class="center">
@@ -41,9 +43,13 @@
 <div id="console" hidden>
   <div class="admin-bar">
     <div class="wrap">
-      <strong class="serif" style="font-size:1.1rem">Jubilee Administration</strong>
-      <div style="display:flex;gap:1.2rem;align-items:center">
-        <a href="wall.html" target="_blank" class="small">Open event wall &#8599;</a>
+      <a href="index.html" class="serif" style="font-size:1.1rem;text-decoration:none;color:var(--cream)">
+        &#8592;&nbsp; Jubilee Administration
+      </a>
+      <div style="display:flex;gap:1.2rem;align-items:center;flex-wrap:wrap">
+        <a href="index.html" class="small">Main page</a>
+        <a href="stories.html" class="small">Stories</a>
+        <a href="wall.html" target="_blank" class="small">Slideshow &#8599;</a>
         <a href="book.html" target="_blank" class="small">Print book &#8599;</a>
         <span class="small" id="who"></span>
         <button class="btn sm ghost" id="signout" style="border-color:#5a5347">Sign out</button>
@@ -145,6 +151,9 @@
 <script src="assets/app.js"></script>
 <script>
 const $ = id => document.getElementById(id);
+
+/* Site nav above the sign-in gate, so nobody gets stranded here. */
+mountNav('admin');
 let stories = [];
 let settings = null;
 let tab = 'pending';
