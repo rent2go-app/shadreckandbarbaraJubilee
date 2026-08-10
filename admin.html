@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Family Administration — Golden Jubilee</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="assets/event-logo.png">
+</head>
+<body>
+
+<!-- ================= login ================= -->
+<section id="gate">
+  <div class="wrap narrow">
+    <div class="center">
+      <p class="eyebrow">Golden Jubilee</p>
+      <h1 style="font-size:2.4rem">Family administration</h1>
+      <p class="muted">Only listed family administrators can read pending stories and contact details.</p>
+      <div class="rule"></div>
+    </div>
+    <form class="panel" id="login-form">
+      <div id="login-alert"></div>
+      <div class="field">
+        <label for="li-email">Email</label>
+        <input type="email" id="li-email" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="li-pass">Password</label>
+        <input type="password" id="li-pass" autocomplete="current-password" required>
+      </div>
+      <button class="btn" style="width:100%" id="li-btn">Sign in</button>
+    </form>
+  </div>
+</section>
+
+<!-- ================= console ================= -->
+<div id="console" hidden>
+  <div class="admin-bar">
+    <div class="wrap">
+      <strong class="serif" style="font-size:1.1rem">Jubilee Administration</strong>
+      <div style="display:flex;gap:1.2rem;align-items:center">
+        <a href="wall.html" target="_blank" class="small">Open event wall &#8599;</a>
+        <a href="book.html" target="_blank" class="small">Print book &#8599;</a>
+        <span class="small" id="who"></span>
+        <button class="btn sm ghost" id="signout" style="border-color:#5a5347">Sign out</button>
+      </div>
+    </div>
+  </div>
+
+  <section style="padding-top:2rem">
+    <div class="wrap">
+      <div id="alert"></div>
+
+      <div class="tabs" id="tabs">
+        <button class="tab active" data-tab="pending">Pending <span class="count" id="c-pending">0</span></button>
+        <button class="tab" data-tab="approved">Published <span class="count" id="c-approved">0</span></button>
+        <button class="tab" data-tab="hold">On hold <span class="count" id="c-hold">0</span></button>
+        <button class="tab" data-tab="rejected">Not used <span class="count" id="c-rejected">0</span></button>
+        <button class="tab" data-tab="archived">Archived <span class="count" id="c-archived">0</span></button>
+        <button class="tab" data-tab="settings">Event screen</button>
+        <button class="tab" data-tab="export">Backup &amp; export</button>
+      </div>
+
+      <div id="list"></div>
+
+      <!-- ---- event screen settings ---- -->
+      <div id="pane-settings" hidden>
+        <div class="panel" style="max-width:720px">
+          <h2 style="font-size:1.6rem">Event screen</h2>
+          <p class="muted small">Changes reach every connected screen immediately. No redeploy, no restart.</p>
+          <div class="grid2">
+            <div class="field">
+              <label for="rotation_seconds">Seconds per story</label>
+              <input type="text" inputmode="numeric" id="rotation_seconds">
+            </div>
+            <div class="field">
+              <label for="qr_frequency">Show the QR slide after every N stories</label>
+              <input type="text" inputmode="numeric" id="qr_frequency">
+            </div>
+          </div>
+          <div class="field">
+            <label for="headline">Headline shown between stories</label>
+            <input type="text" id="headline">
+          </div>
+          <div class="field">
+            <label for="transition_style">Transition</label>
+            <select id="transition_style">
+              <option value="fade">Fade</option>
+              <option value="slide">Slide</option>
+              <option value="none">None</option>
+            </select>
+          </div>
+          <div class="toggles" style="margin:1.4rem 0 1.8rem">
+            <label><input type="checkbox" id="show_location"> Show where the person is writing from</label>
+            <label><input type="checkbox" id="show_relationship"> Show how they know the couple</label>
+            <label><input type="checkbox" id="show_love_quote"> Show the &ldquo;Love is&hellip;&rdquo; line</label>
+            <label><input type="checkbox" id="randomize_stories"> Shuffle the order each pass</label>
+            <label><input type="checkbox" id="enable_qr_slide"> Include the QR slide</label>
+            <label><input type="checkbox" id="event_mode"> Event mode (celebration is under way)</label>
+          </div>
+          <button class="btn" id="save-settings">Save settings</button>
+        </div>
+      </div>
+
+      <!-- ---- export ---- -->
+      <div id="pane-export" hidden>
+        <div class="panel" style="max-width:760px">
+          <h2 style="font-size:1.6rem">Backup &amp; export</h2>
+          <p class="muted">
+            The archive should never depend on this website staying online. Download a copy
+            regularly, and once more after the celebration.
+          </p>
+
+          <div style="display:flex;gap:1rem;flex-wrap:wrap;margin:1.8rem 0">
+            <button class="btn ghost" id="export-csv">Export CSV</button>
+            <button class="btn" id="export-zip">Export full story archive</button>
+          </div>
+
+          <div id="export-status" class="small muted"></div>
+
+          <div class="private" style="margin-top:2rem">
+            <strong>What the full archive contains</strong>
+            <ul class="small" style="margin:.6rem 0 0;padding-left:1.1rem">
+              <li><code>stories.csv</code> — every field, including contact details and admin notes</li>
+              <li>one folder per story, named by contributor and story ID</li>
+              <li>the original photograph exactly as uploaded</li>
+              <li>the portrait crop and thumbnail used on screen</li>
+              <li>any generated cards</li>
+              <li><code>story.txt</code> — the original words and the edited version side by side</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="assets/supabase-config.js"></script>
+<script src="assets/app.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+let stories = [];
+let settings = null;
+let tab = 'pending';
+
+/* ================= auth ================= */
+
+$('login-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  $('li-btn').disabled = true;
+  $('li-btn').innerHTML = '<span class="spinner"></span>Signing in…';
+
+  const { error } = await db.auth.signInWithPassword({
+    email: $('li-email').value.trim(),
+    password: $('li-pass').value
+  });
+
+  if (error){
+    $('login-alert').innerHTML = `<div class="notice err">${esc(error.message)}</div>`;
+    $('li-btn').disabled = false;
+    $('li-btn').textContent = 'Sign in';
+    return;
+  }
+  boot();
+});
+
+$('signout').addEventListener('click', async () => {
+  await db.auth.signOut();
+  location.reload();
+});
+
+async function boot(){
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) return;
+
+  const { data: isAdmin } = await db.rpc('is_jubilee_admin');
+  if (!isAdmin){
+    $('login-alert').innerHTML =
+      `<div class="notice err">That account is signed in but is not on the family administrator list.</div>`;
+    await db.auth.signOut();
+    $('li-btn').disabled = false;
+    $('li-btn').textContent = 'Sign in';
+    return;
+  }
+
+  $('gate').hidden = true;
+  $('console').hidden = false;
+  $('who').textContent = session.user.email;
+
+  await Promise.all([loadStories(), loadSettings()]);
+  subscribeStories(() => loadStories());
+}
+
+/* ================= data ================= */
+
+async function loadStories(){
+  const { data, error } = await db.from('stories').select('*').order('created_at', { ascending: false });
+  if (error){ notify('err', error.message); return; }
+  stories = data || [];
+  ['pending','approved','hold','rejected','archived'].forEach(s => {
+    $('c-' + s).textContent = stories.filter(x => x.status === s).length;
+  });
+  render();
+}
+
+async function loadSettings(){
+  settings = await fetchDisplaySettings();
+  const fields = ['rotation_seconds','qr_frequency','headline','transition_style'];
+  fields.forEach(f => { if ($(f)) $(f).value = settings[f] ?? ''; });
+  ['show_location','show_relationship','show_love_quote','randomize_stories','enable_qr_slide','event_mode']
+    .forEach(f => { $(f).checked = !!settings[f]; });
+}
+
+function notify(kind, text){
+  $('alert').innerHTML = `<div class="notice ${kind}">${esc(text)}</div>`;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (kind === 'ok') setTimeout(() => { $('alert').innerHTML = ''; }, 4000);
+}
+
+/* ================= rendering ================= */
+
+function render(){
+  $('pane-settings').hidden = tab !== 'settings';
+  $('pane-export').hidden   = tab !== 'export';
+  $('list').hidden = (tab === 'settings' || tab === 'export');
+  if ($('list').hidden) return;
+
+  const rows = stories.filter(s => s.status === tab);
+  $('list').innerHTML = rows.length
+    ? rows.map(adminRow).join('')
+    : `<div class="empty-state"><p>Nothing in this list.</p></div>`;
+}
+
+function adminRow(s){
+  const photo = s.thumbnail_photo_url || s.cropped_photo_url;
+  const thumb = photo
+    ? `<img class="thumb" src="${esc(photo)}" alt="">`
+    : `<div class="thumb card-photo empty" style="font-size:1.6rem">${esc(initials(s.full_name))}</div>`;
+
+  const rel = s.relationship === 'other'
+    ? (s.relationship_other || 'Other')
+    : (RELATIONSHIPS[s.relationship] || '—');
+
+  return `
+  <div class="row" data-id="${esc(s.id)}">
+    <div>
+      ${thumb}
+      ${s.original_photo_url ? `<button class="btn sm ghost" style="margin-top:.5rem;width:100%"
+          data-act="original">Original</button>` : ''}
+    </div>
+
+    <div>
+      <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-bottom:.5rem">
+        <span class="status ${esc(s.status)}">${esc(s.status)}</span>
+        <span class="tag">${esc(STORY_TYPES[s.story_type] || s.story_type)}</span>
+        ${s.featured ? '<span class="tag" style="border-color:var(--gold);color:var(--gold-dk)">Featured</span>' : ''}
+      </div>
+
+      <h3 style="margin:0">${esc(s.full_name)}</h3>
+      <p class="small muted" style="margin:.15rem 0 .8rem">
+        ${esc(rel)}${s.location ? ' · ' + esc(s.location) : ''}
+        · received ${esc(new Date(s.created_at).toLocaleDateString('en-ZA', { day:'numeric', month:'short', year:'numeric' }))}
+      </p>
+
+      <div class="private small">
+        <strong>Private — never shown publicly:</strong>
+        ${esc(s.email || 'no email')} · ${esc(s.phone || 'no phone')}
+      </div>
+
+      <details style="margin:.8rem 0">
+        <summary class="small" style="cursor:pointer;font-weight:600">Original words (never overwritten)</summary>
+        <p class="serif" style="white-space:pre-wrap;background:var(--cream);padding:1rem;border-radius:8px;margin:.6rem 0 0">${esc(s.original_message)}</p>
+      </details>
+
+      <div class="field" style="margin-bottom:.9rem">
+        <label class="small">Edited version shown to the public (leave blank to use the original)</label>
+        <textarea data-f="edited_message" style="min-height:130px">${esc(s.edited_message || '')}</textarea>
+      </div>
+
+      <div class="grid2">
+        <div class="field" style="margin-bottom:.6rem">
+          <label class="small">&ldquo;Love is&hellip;&rdquo;</label>
+          <input type="text" data-f="love_is_quote" maxlength="200" value="${esc(s.love_is_quote || '')}">
+        </div>
+        <div class="field" style="margin-bottom:.6rem">
+          <label class="small">Order on screen (blank = by date)</label>
+          <input type="text" inputmode="numeric" data-f="display_order" value="${esc(s.display_order ?? '')}">
+        </div>
+      </div>
+
+      <div class="field" style="margin-bottom:0">
+        <label class="small">Family notes (private)</label>
+        <input type="text" data-f="admin_notes" value="${esc(s.admin_notes || '')}" placeholder="e.g. read this one aloud after the toast">
+      </div>
+    </div>
+
+    <div class="actions">
+      ${s.status !== 'approved'
+        ? `<button class="btn sm" data-act="approve">Approve &amp; publish</button>`
+        : `<button class="btn sm ghost" data-act="hold">Unpublish (hold)</button>`}
+      <button class="btn sm ghost" data-act="save">Save changes</button>
+
+      <div class="toggles">
+        <label><input type="checkbox" data-f="show_on_landing_page" ${s.show_on_landing_page ? 'checked' : ''}> Website</label>
+        <label><input type="checkbox" data-f="show_on_event_wall"   ${s.show_on_event_wall   ? 'checked' : ''}> Event screen</label>
+        <label><input type="checkbox" data-f="include_in_book"      ${s.include_in_book      ? 'checked' : ''}> Printed book</label>
+        <label><input type="checkbox" data-f="featured"             ${s.featured             ? 'checked' : ''}> Featured</label>
+      </div>
+
+      <button class="btn sm ghost" data-act="card">Generate card</button>
+      <select data-act="status-select" style="font-size:.82rem;padding:.45rem">
+        ${['pending','approved','hold','rejected','archived']
+          .map(v => `<option value="${v}"${s.status === v ? ' selected' : ''}>${v}</option>`).join('')}
+      </select>
+    </div>
+  </div>`;
+}
+
+/* ================= row actions ================= */
+
+$('list').addEventListener('click', async e => {
+  const btn = e.target.closest('[data-act]');
+  if (!btn || btn.tagName === 'SELECT') return;
+  const row = btn.closest('.row');
+  const id  = row.dataset.id;
+  const act = btn.dataset.act;
+
+  if (act === 'approve') return update(id, { ...collect(row), status: 'approved' });
+  if (act === 'hold')    return update(id, { ...collect(row), status: 'hold' });
+  if (act === 'save')    return update(id, collect(row));
+  if (act === 'original') return openOriginal(id);
+  if (act === 'card')     return generateCard(id, btn);
+});
+
+$('list').addEventListener('change', e => {
+  const sel = e.target.closest('[data-act="status-select"]');
+  if (!sel) return;
+  const row = sel.closest('.row');
+  update(row.dataset.id, { ...collect(row), status: sel.value });
+});
+
+function collect(row){
+  const out = {};
+  row.querySelectorAll('[data-f]').forEach(el => {
+    const f = el.dataset.f;
+    if (el.type === 'checkbox') out[f] = el.checked;
+    else if (f === 'display_order') out[f] = el.value.trim() === '' ? null : parseInt(el.value, 10) || null;
+    else out[f] = el.value.trim() === '' ? null : el.value;
+  });
+  return out;
+}
+
+async function update(id, patch){
+  const { error } = await db.from('stories').update(patch).eq('id', id);
+  if (error) return notify('err', error.message);
+  notify('ok', 'Saved.');
+  loadStories();
+}
+
+async function openOriginal(id){
+  const s = stories.find(x => x.id === id);
+  const { data, error } = await db.storage.from('story-originals').createSignedUrl(s.original_photo_url, 3600);
+  if (error) return notify('err', 'Could not open the original: ' + error.message);
+  window.open(data.signedUrl, '_blank');
+}
+
+/* ---- generated card: rendered here, stored in story-generated ---- */
+async function generateCard(id, btn){
+  const s = stories.find(x => x.id === id);
+  btn.disabled = true; btn.textContent = 'Generating…';
+  try {
+    const W = 1080, H = 1080;
+    const c = document.createElement('canvas');
+    c.width = W; c.height = H;
+    const g = c.getContext('2d');
+
+    g.fillStyle = '#14110d'; g.fillRect(0, 0, W, H);
+    g.strokeStyle = '#b8893b'; g.lineWidth = 3; g.strokeRect(38, 38, W - 76, H - 76);
+
+    if (s.cropped_photo_url){
+      const img = await new Promise((res, rej) => {
+        const i = new Image(); i.crossOrigin = 'anonymous';
+        i.onload = () => res(i); i.onerror = rej; i.src = s.cropped_photo_url;
+      });
+      const size = 300, x = (W - size) / 2, y = 110;
+      g.save();
+      g.beginPath(); g.arc(x + size/2, y + size/2, size/2, 0, Math.PI * 2); g.clip();
+      g.drawImage(img, x, y, size, size * (img.height/img.width) || size);
+      g.restore();
+      g.strokeStyle = '#d9b978'; g.lineWidth = 4;
+      g.beginPath(); g.arc(x + size/2, y + size/2, size/2, 0, Math.PI * 2); g.stroke();
+    }
+
+    g.textAlign = 'center'; g.fillStyle = '#f7f1e4';
+    g.font = 'italic 40px "Cormorant Garamond", Georgia, serif';
+    if (s.love_is_quote) g.fillText('“Love is ' + s.love_is_quote.slice(0, 46) + '”', W/2, 500);
+
+    g.font = '38px "Cormorant Garamond", Georgia, serif';
+    wrapText(g, (s.edited_message || s.original_message).slice(0, 300), W/2, 580, W - 220, 50);
+
+    g.fillStyle = '#d9b978';
+    g.font = '600 30px Inter, Helvetica, Arial, sans-serif';
+    g.fillText(s.full_name.toUpperCase(), W/2, H - 130);
+    g.fillStyle = '#8b8069';
+    g.font = '24px Inter, Helvetica, Arial, sans-serif';
+    g.fillText('Shadreck & Barbara · Fifty Years of Love', W/2, H - 88);
+
+    const blob = await canvasToBlob(c, 'image/png');
+    const path = `${s.id}/square-card.png`;
+    const up = await db.storage.from('story-generated').upload(path, blob, { contentType: 'image/png', upsert: true });
+    if (up.error) throw up.error;
+
+    const url = db.storage.from('story-generated').getPublicUrl(path).data.publicUrl;
+    await db.from('generated_assets').upsert({
+      story_id: s.id, asset_type: 'square_card', file_url: url, file_path: path,
+      width: W, height: H, format: 'png'
+    });
+
+    window.open(url, '_blank');
+    notify('ok', 'Card generated and stored.');
+  } catch (err){
+    notify('err', 'Card generation failed: ' + (err.message || err));
+  } finally {
+    btn.disabled = false; btn.textContent = 'Generate card';
+  }
+}
+
+function wrapText(ctx, text, x, y, maxWidth, lineHeight){
+  const words = text.split(/\s+/);
+  let line = '';
+  for (const w of words){
+    const test = line + w + ' ';
+    if (ctx.measureText(test).width > maxWidth && line){
+      ctx.fillText(line.trim(), x, y); line = w + ' '; y += lineHeight;
+    } else line = test;
+  }
+  ctx.fillText(line.trim(), x, y);
+}
+
+/* ================= tabs ================= */
+
+$('tabs').addEventListener('click', e => {
+  const t = e.target.closest('.tab');
+  if (!t) return;
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  t.classList.add('active');
+  tab = t.dataset.tab;
+  render();
+});
+
+/* ================= settings ================= */
+
+$('save-settings').addEventListener('click', async () => {
+  const patch = {
+    rotation_seconds: parseInt($('rotation_seconds').value, 10) || 14,
+    qr_frequency:     parseInt($('qr_frequency').value, 10) || 6,
+    headline:         $('headline').value.trim() || 'Shadreck & Barbara — Fifty Years of Love',
+    transition_style: $('transition_style').value
+  };
+  ['show_location','show_relationship','show_love_quote','randomize_stories','enable_qr_slide','event_mode']
+    .forEach(f => patch[f] = $(f).checked);
+
+  const { error } = await db.from('display_settings').update(patch).eq('id', 1);
+  notify(error ? 'err' : 'ok', error ? error.message : 'Event screen updated on every connected display.');
+});
+
+/* ================= export ================= */
+
+const CSV_COLS = ['id','created_at','submitted_at','status','approved','approved_at','approved_by',
+  'full_name','relationship','relationship_other','location','email','phone','story_type',
+  'original_message','edited_message','love_is_quote','original_photo_url','cropped_photo_url',
+  'thumbnail_photo_url','include_in_book','show_on_landing_page','show_on_event_wall','featured',
+  'display_order','consent','admin_notes'];
+
+const csvCell = v => {
+  if (v === null || v === undefined) return '';
+  const s = String(v);
+  return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+};
+
+function buildCsv(rows){
+  return '﻿' + [CSV_COLS.join(',')]
+    .concat(rows.map(r => CSV_COLS.map(c => csvCell(r[c])).join(',')))
+    .join('\r\n');
+}
+
+function download(blob, filename){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+
+const stamp = () => new Date().toISOString().slice(0, 10);
+const slug  = s => String(s || 'story').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40);
+
+$('export-csv').addEventListener('click', () => {
+  download(new Blob([buildCsv(stories)], { type: 'text/csv;charset=utf-8' }),
+           `jubilee-stories-${stamp()}.csv`);
+});
+
+$('export-zip').addEventListener('click', async () => {
+  const status = $('export-status');
+  const zip = new JSZip();
+  zip.file('stories.csv', buildCsv(stories));
+  zip.file('README.txt',
+    'Shadreck & Barbara — Golden Jubilee\n' +
+    'Stories of Love archive\n' +
+    `Exported ${new Date().toISOString()}\n\n` +
+    `${stories.length} stories.\n` +
+    'Each folder holds one story: the words, the original photograph as uploaded,\n' +
+    'the portrait crop used on screen, and any generated cards.\n');
+
+  const { data: assets } = await db.from('generated_assets').select('*');
+
+  for (let i = 0; i < stories.length; i++){
+    const s = stories[i];
+    status.textContent = `Packing story ${i + 1} of ${stories.length} — ${s.full_name}…`;
+    const folder = zip.folder(`stories/${String(i + 1).padStart(3,'0')}-${slug(s.full_name)}-${s.id.slice(0, 8)}`);
+
+    folder.file('story.txt',
+      `${s.full_name}\n${s.location || ''}\n${s.relationship || ''}\n` +
+      `Received: ${s.created_at}\nStatus: ${s.status}\n\n` +
+      `--- ORIGINAL WORDS (never altered) ---\n${s.original_message}\n\n` +
+      (s.edited_message ? `--- EDITED FOR PRINT ---\n${s.edited_message}\n\n` : '') +
+      (s.love_is_quote ? `Love is ${s.love_is_quote}\n` : ''));
+
+    try {
+      if (s.original_photo_url){
+        const { data } = await db.storage.from('story-originals').download(s.original_photo_url);
+        if (data) folder.file('original' + (s.original_photo_url.match(/\.[a-z0-9]+$/i)?.[0] || '.jpg'), data);
+      }
+      if (s.cropped_photo_url){
+        const r = await fetch(s.cropped_photo_url);
+        if (r.ok) folder.file('portrait.jpg', await r.blob());
+      }
+      for (const a of (assets || []).filter(a => a.story_id === s.id)){
+        const r = await fetch(a.file_url);
+        if (r.ok) folder.file(`${a.asset_type}.${a.format || 'png'}`, await r.blob());
+      }
+    } catch (err){
+      folder.file('MEDIA-ERROR.txt', String(err));
+    }
+  }
+
+  status.textContent = 'Compressing…';
+  const blob = await zip.generateAsync({ type: 'blob' }, m =>
+    status.textContent = `Compressing… ${m.percent.toFixed(0)}%`);
+  download(blob, `jubilee-archive-${stamp()}.zip`);
+  status.textContent = `Archive downloaded — ${stories.length} stories.`;
+});
+
+/* ================= start ================= */
+boot();
+</script>
+</body>
+</html>

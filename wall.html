@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Testimony Wall — Shadreck &amp; Barbara Golden Jubilee</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="assets/event-logo.png">
+</head>
+<body class="wall">
+
+<div class="wall-stage">
+  <div class="wall-slide" id="slide">
+    <div class="center" style="grid-column:1/-1">
+      <img class="wall-crest" src="assets/event-logo.png" alt="">
+      <p style="letter-spacing:.3em;text-transform:uppercase;color:#8b8069">Fifty years of life, love and legacy</p>
+    </div>
+  </div>
+</div>
+
+<div class="wall-progress" id="progress"></div>
+<div class="wall-count"   id="counter"></div>
+<div class="wall-toast"   id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script src="assets/supabase-config.js"></script>
+<script src="assets/app.js"></script>
+<script>
+/* ------------------------------------------------------------------
+   Event testimony wall.
+
+   Rules that matter on the night:
+     · Configuration comes from display_settings, so the rotation can be
+       retuned from the admin page without touching this file.
+     · A newly approved story is added to the QUEUE. It never interrupts
+       the testimony currently on screen.
+     · Nothing here needs a keyboard once it is running.
+
+   Keys: F fullscreen · Space pause/resume · → skip · ← previous
+------------------------------------------------------------------- */
+
+const slideEl    = document.getElementById('slide');
+const progressEl = document.getElementById('progress');
+const counterEl  = document.getElementById('counter');
+const toastEl    = document.getElementById('toast');
+
+let settings   = null;
+let queue      = [];      // ordered stories currently in rotation
+let seen       = new Set();
+let index      = -1;
+let shownSince  = 0;      // stories shown since the last QR slide
+let paused     = false;
+let timer      = null;
+let ticker     = null;
+
+/* ---------- data ---------- */
+
+async function refresh({ announce = false } = {}){
+  const stories = await fetchPublicStories({ surface: 'wall', limit: 500 });
+
+  const fresh = stories.filter(s => !seen.has(s.id));
+  stories.forEach(s => seen.add(s.id));
+
+  if (!queue.length){
+    queue = settings.randomize_stories ? shuffle(stories) : stories;
+  } else {
+    /* Keep the running order; append what is new so the current
+       testimony is never cut short. */
+    const known = new Set(queue.map(s => s.id));
+    queue = queue
+      .filter(s => seen.has(s.id))
+      .map(s => stories.find(x => x.id === s.id) || s)      // pick up edits
+      .concat(fresh.filter(s => !known.has(s.id)));
+  }
+
+  if (announce && fresh.length){
+    toast(fresh.length === 1
+      ? `A new story from ${fresh[0].full_name}`
+      : `${fresh.length} new stories just arrived`);
+  }
+  paintCounter();
+}
+
+const shuffle = a => a.map(v => [Math.random(), v]).sort((x, y) => x[0] - y[0]).map(p => p[1]);
+
+/* ---------- rendering ---------- */
+
+function storySlide(s){
+  const photo = s.cropped_photo_url
+    ? `<img src="${esc(s.cropped_photo_url)}" alt="">`
+    : `<div class="card-photo empty" style="background:#221d16;color:var(--gold-dk);font-size:6rem">${esc(initials(s.full_name))}</div>`;
+
+  const quote = (settings.show_love_quote && s.love_is_quote)
+    ? `<p class="wall-quote">&ldquo;Love is ${esc(s.love_is_quote)}&rdquo;</p>` : '';
+
+  const meta = bylineMeta(s, {
+    location:     settings.show_location,
+    relationship: settings.show_relationship
+  });
+
+  return `
+    <div>${photo}</div>
+    <div>
+      ${quote}
+      <p class="wall-msg">${esc(trim(s.public_message, 460))}</p>
+      <p class="wall-by">${esc(s.full_name)}${meta ? `<span>${esc(meta)}</span>` : ''}</p>
+    </div>`;
+}
+
+function qrSlide(){
+  let img = '';
+  try {
+    const qr = qrcode(0, 'M');
+    qr.addData(SUBMIT_URL);
+    qr.make();
+    img = `<img src="${qr.createDataURL(8, 0)}" alt="Scan to share your story">`;
+  } catch(_){ /* library unavailable — show the address instead */ }
+
+  return `
+    <div class="wall-qr" style="grid-column:1/-1">
+      ${img}
+      <p class="serif" style="font-size:clamp(2rem,3.6vw,3.6rem);margin:0 0 .6rem">Your story belongs here too</p>
+      <p style="letter-spacing:.2em;text-transform:uppercase;color:var(--gold-lt);font-size:clamp(.9rem,1.2vw,1.2rem)">
+        Scan the code, or visit
+      </p>
+      <p style="text-transform:none;letter-spacing:.01em;color:#b7ac97;font-size:clamp(.85rem,1.05vw,1.05rem);overflow-wrap:anywhere;max-width:70ch;margin:.5rem auto 0">
+        ${esc(SUBMIT_URL.replace(/^https?:\/\//, ''))}
+      </p>
+    </div>`;
+}
+
+const trim = (t, n) => (t || '').length > n ? (t.slice(0, n).replace(/\s+\S*$/, '') + '…') : (t || '');
+
+function show(html){
+  slideEl.classList.remove('in');
+  const style = settings.transition_style;
+  const wait  = style === 'none' ? 0 : 600;
+  setTimeout(() => {
+    slideEl.innerHTML = html;
+    requestAnimationFrame(() => slideEl.classList.add('in'));
+  }, wait);
+}
+
+function paintCounter(){
+  counterEl.textContent = queue.length
+    ? `${Math.max(index + 1, 1)} / ${queue.length}`
+    : 'Waiting for the first story';
+}
+
+/* ---------- rotation ---------- */
+
+function next(step = 1){
+  if (!queue.length){
+    show(`<div class="center" style="grid-column:1/-1">
+            <img class="wall-crest" src="assets/event-logo.png" alt="">
+            <p class="serif" style="font-size:3rem;color:var(--gold-lt)">${esc(settings.headline)}</p>
+            <p style="letter-spacing:.3em;text-transform:uppercase;color:#8b8069">The first story is on its way</p>
+          </div>`);
+    schedule();
+    return;
+  }
+
+  if (settings.enable_qr_slide && step > 0 && shownSince >= settings.qr_frequency){
+    shownSince = 0;
+    show(qrSlide());
+    schedule();
+    return;
+  }
+
+  index = (index + step + queue.length) % queue.length;
+  if (index === 0 && step > 0 && settings.randomize_stories) queue = shuffle(queue);
+
+  shownSince++;
+  show(storySlide(queue[index]));
+  paintCounter();
+  schedule();
+}
+
+function schedule(){
+  clearTimeout(timer); clearInterval(ticker);
+  if (paused) return;
+
+  const ms = settings.rotation_seconds * 1000;
+  const started = Date.now();
+  progressEl.style.width = '0%';
+
+  ticker = setInterval(() => {
+    progressEl.style.width = Math.min(100, ((Date.now() - started) / ms) * 100) + '%';
+  }, 200);
+
+  timer = setTimeout(() => next(1), ms);
+}
+
+function toast(text){
+  toastEl.textContent = text;
+  toastEl.classList.add('in');
+  setTimeout(() => toastEl.classList.remove('in'), 5000);
+}
+
+/* ---------- controls ---------- */
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'f' || e.key === 'F'){
+    document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+  }
+  if (e.key === ' '){
+    e.preventDefault();
+    paused = !paused;
+    if (paused){ clearTimeout(timer); clearInterval(ticker); toast('Paused'); }
+    else { toast('Resumed'); schedule(); }
+  }
+  if (e.key === 'ArrowRight'){ next(1); }
+  if (e.key === 'ArrowLeft') { next(-1); }
+});
+
+/* ---------- start ---------- */
+
+(async function start(){
+  /* Show the crest immediately. The screen must never sit blank while
+     it waits on the network. */
+  slideEl.classList.add('in');
+
+  settings = await fetchDisplaySettings();
+  await refresh();
+  next(1);
+
+  /* Approvals reach the screen without anyone touching this machine. */
+  subscribeStories(() => refresh({ announce: true }));
+  subscribeDisplaySettings(s => { settings = s; toast('Display settings updated'); });
+
+  /* Safety net for a venue with unreliable wifi: re-read every 2 minutes. */
+  setInterval(() => refresh({ announce: true }), 120000);
+})();
+</script>
+</body>
+</html>

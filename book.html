@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jubilee Book — print edition</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="assets/event-logo.png">
+<style>@page{size:A4;margin:0}</style>
+</head>
+<body style="background:#efe9dd">
+
+<div class="no-print" style="padding:1.2rem 0;background:var(--ink);color:var(--cream);position:sticky;top:0;z-index:20">
+  <div class="wrap" style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
+    <div>
+      <strong class="serif">Jubilee Book — print edition</strong>
+      <span class="small" id="meta" style="margin-left:1rem;color:#b0a68f"></span>
+    </div>
+    <div style="display:flex;gap:.7rem">
+      <a class="btn sm ghost" href="admin.html" style="border-color:#5a5347;color:var(--cream)">Back to admin</a>
+      <button class="btn sm" onclick="window.print()">Print / Save as PDF</button>
+    </div>
+  </div>
+</div>
+
+<div class="no-print wrap" style="padding:1.4rem 0">
+  <div class="notice info" id="notice">Loading the book&hellip;</div>
+  <p class="small muted">
+    Print at A4, margins &ldquo;None&rdquo;, background graphics on. Order the pages from the admin
+    console using <em>Order on screen</em>; stories with <em>Printed book</em> unticked are left out.
+  </p>
+</div>
+
+<div id="pages"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/supabase-config.js"></script>
+<script src="assets/app.js"></script>
+<script>
+(async function(){
+  const notice = document.getElementById('notice');
+
+  const { data: { session } } = await db.auth.getSession();
+  const { data: isAdmin } = session ? await db.rpc('is_jubilee_admin') : { data: false };
+  if (!isAdmin){
+    notice.className = 'notice err';
+    notice.innerHTML = 'Sign in as a family administrator first — <a href="admin.html">go to admin</a>.';
+    return;
+  }
+
+  const { data, error } = await db.from('stories')
+    .select('*')
+    .eq('approved', true)
+    .eq('include_in_book', true)
+    .order('display_order', { ascending: true, nullsFirst: false })
+    .order('created_at',    { ascending: true });
+
+  if (error){ notice.className = 'notice err'; notice.textContent = error.message; return; }
+
+  const stories = data || [];
+  document.getElementById('meta').textContent =
+    `${stories.length} ${stories.length === 1 ? 'story' : 'stories'} · ${stories.length + 2} pages`;
+  notice.className = 'notice ok';
+  notice.textContent = `Ready — ${stories.length} stories laid out.`;
+
+  const title = `
+    <div class="book-page" style="justify-content:center;text-align:center">
+      <p style="letter-spacing:.3em;text-transform:uppercase;font-size:10pt;color:#8a6427">Golden Jubilee</p>
+      <p class="serif" style="font-size:64pt;line-height:1;margin:14mm 0 6mm;color:#b8893b">50</p>
+      <h1 class="serif" style="font-size:30pt;margin:0 0 8mm">Shadreck &amp; Barbara</h1>
+      <p class="serif" style="font-size:16pt;font-style:italic">Fifty Years of Life, Love and Legacy</p>
+      <p style="letter-spacing:.2em;text-transform:uppercase;font-size:9pt;color:#8a6427;margin-top:8mm">
+        29 August 2026 &middot; Grand Palm Lodge, Bulawayo
+      </p>
+      <p class="serif" style="font-size:12pt;margin-top:22mm;color:#5b5248">
+        Stories gathered from the family and friends<br>who have lived inside this marriage.
+      </p>
+    </div>`;
+
+  const pages = stories.map((s, i) => {
+    const rel = s.relationship === 'other' ? (s.relationship_other || '') : (RELATIONSHIPS[s.relationship] || '');
+    const meta = [rel, s.location].filter(Boolean).join(' · ');
+    const msg = s.edited_message || s.original_message;
+    return `
+      <div class="book-page">
+        ${s.cropped_photo_url ? `<img class="bp-photo" src="${esc(s.cropped_photo_url)}" alt="">` : ''}
+        ${s.love_is_quote
+          ? `<p class="serif" style="font-style:italic;font-size:15pt;color:#8a6427;margin:0 0 6mm">&ldquo;Love is ${esc(s.love_is_quote)}&rdquo;</p>` : ''}
+        <p class="bp-msg" style="white-space:pre-wrap">${esc(msg)}</p>
+        <div class="bp-by">
+          <strong>${esc(s.full_name)}</strong>
+          ${meta ? `<span style="font-family:var(--sans);font-size:9.5pt;color:#5b5248">${esc(meta)}</span>` : ''}
+        </div>
+        <div class="bp-num">${i + 1}</div>
+      </div>`;
+  }).join('');
+
+  const closing = `
+    <div class="book-page" style="justify-content:center;text-align:center">
+      <p class="serif" style="font-size:20pt;font-style:italic;color:#8a6427">
+        &ldquo;Two are better than one&hellip;<br>and a threefold cord is not quickly broken.&rdquo;
+      </p>
+      <p class="small" style="margin-top:14mm;color:#5b5248">
+        Every story in this book is held in the family archive,<br>
+        exactly as it was written.
+      </p>
+    </div>`;
+
+  document.getElementById('pages').innerHTML = title + pages + closing;
+})();
+</script>
+</body>
+</html>

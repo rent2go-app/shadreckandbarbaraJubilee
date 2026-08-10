@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Share your story — Shadreck &amp; Barbara Golden Jubilee</title>
+<meta name="description" content="Add your memory, lesson or blessing to the Golden Jubilee archive.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="assets/event-logo.png">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="index.html">Shadreck <span>&amp;</span> Barbara</a>
+    <div class="nav-links"><a href="stories.html">Stories</a></div>
+  </div>
+</nav>
+
+<section>
+  <div class="wrap narrow">
+
+    <div class="center" id="intro">
+      <p class="eyebrow">Golden Jubilee &middot; Stories of Love</p>
+      <h1 style="font-size:clamp(2rem,5vw,3.2rem)">Share your story</h1>
+      <p class="muted">Write it the way you would say it. We are not looking for a speech — we are looking for you.</p>
+      <div class="rule"></div>
+    </div>
+
+    <!-- success ------------------------------------------------ -->
+    <div class="panel center" id="done" hidden>
+      <p class="serif" style="font-size:3rem;color:var(--gold);margin:0">&#10003;</p>
+      <h2>Thank you</h2>
+      <p class="muted">
+        Your story is safely with the family. One of us will read it before it appears on the
+        website and the screens at the celebration — usually within a day or two.
+      </p>
+      <p><a class="btn" href="index.html">Back to the Jubilee</a></p>
+      <p><a href="share.html" class="small">Add another story</a></p>
+    </div>
+
+    <!-- form --------------------------------------------------- -->
+    <form class="panel" id="form" novalidate>
+      <div id="alert"></div>
+
+      <!-- bots fill this in; people never see it -->
+      <div class="honeypot" aria-hidden="true">
+        <label>Do not fill this in<input type="text" id="hp" tabindex="-1" autocomplete="off"></label>
+      </div>
+
+      <div class="grid2">
+        <div class="field">
+          <label for="full_name">Your name <span class="req">*</span></label>
+          <input type="text" id="full_name" maxlength="120" autocomplete="name" required>
+        </div>
+        <div class="field">
+          <label for="location">Where you are writing from</label>
+          <input type="text" id="location" maxlength="120" placeholder="Bulawayo, Zimbabwe">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="relationship">How do you know Shadreck and Barbara? <span class="req">*</span></label>
+        <select id="relationship" required>
+          <option value="">Choose one&hellip;</option>
+          <option value="child">Their child</option>
+          <option value="grandchild">Their grandchild</option>
+          <option value="sibling">Their brother or sister</option>
+          <option value="family">Family</option>
+          <option value="friend">A friend</option>
+          <option value="church">Church family</option>
+          <option value="colleague">A colleague</option>
+          <option value="other">Another way&hellip;</option>
+        </select>
+      </div>
+
+      <div class="field" id="other-wrap" hidden>
+        <label for="relationship_other">Tell us how</label>
+        <input type="text" id="relationship_other" maxlength="120" placeholder="Their neighbour for thirty years">
+      </div>
+
+      <div class="field">
+        <label for="story_type">What kind of story is this?</label>
+        <select id="story_type">
+          <option value="testimony">A testimony</option>
+          <option value="memory">A memory</option>
+          <option value="blessing">A blessing for the next fifty</option>
+          <option value="advice">Something they taught me</option>
+          <option value="tribute">A tribute</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="original_message">Your story <span class="req">*</span></label>
+        <textarea id="original_message" maxlength="4000" required
+          placeholder="Start anywhere. A Sunday afternoon, a piece of advice, the way they made room for people&hellip;"></textarea>
+        <div class="counter" id="counter">0 / 4000 &middot; at least 20 characters</div>
+        <p class="hint">Your words are stored exactly as you write them. If we tidy a typo for the printed book, the original is always kept.</p>
+      </div>
+
+      <div class="field">
+        <label for="love_is_quote">Finish this line: &ldquo;Love is&hellip;&rdquo;</label>
+        <input type="text" id="love_is_quote" maxlength="200" placeholder="showing up, every single time">
+        <p class="hint">Optional. These are read aloud on the day.</p>
+      </div>
+
+      <div class="field">
+        <label>A photograph of you</label>
+        <div class="dropzone" id="drop">
+          <div id="drop-idle">
+            <p class="serif" style="font-size:2rem;color:var(--gold);margin:0 0 .3rem">&#128247;</p>
+            <p style="margin:0"><strong>Tap to add a selfie or photo</strong></p>
+            <p class="small muted" style="margin:.3rem 0 0">JPG, PNG, WEBP or HEIC &middot; up to 15MB &middot; optional</p>
+          </div>
+          <div id="drop-preview" hidden>
+            <img class="preview" id="preview" alt="Your photograph">
+            <p class="small muted" style="margin:.8rem 0 0">Tap to choose a different photo</p>
+          </div>
+        </div>
+        <input type="file" id="photo" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" hidden>
+      </div>
+
+      <div class="grid2">
+        <div class="field">
+          <label for="email">Your email</label>
+          <input type="email" id="email" maxlength="200" autocomplete="email" placeholder="So we can thank you">
+        </div>
+        <div class="field">
+          <label for="phone">Your phone</label>
+          <input type="tel" id="phone" maxlength="40" autocomplete="tel" placeholder="Optional">
+        </div>
+      </div>
+      <p class="hint" style="margin-top:-.8rem">
+        Kept privately by the family. Your email and phone are never shown on the website,
+        the screens or in the book.
+      </p>
+
+      <div class="field" style="margin-top:1.8rem">
+        <label class="check">
+          <input type="checkbox" id="consent" required>
+          <span>
+            I am happy for the family to share my story and photograph on the Jubilee website,
+            on the screens at the celebration, and in the printed Jubilee book. <span class="req">*</span>
+          </span>
+        </label>
+      </div>
+
+      <button class="btn" id="submit" type="submit" style="width:100%">Send my story</button>
+      <p class="small muted center" style="margin-top:1rem">
+        Nothing appears publicly until a member of the family has read it.
+      </p>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap"><p class="small">Shadreck &amp; Barbara &middot; Golden Jubilee &middot; 29 August 2026 &middot; Grand Palm Lodge, Bulawayo</p></div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/supabase-config.js"></script>
+<script src="assets/app.js"></script>
+<script>
+const form    = document.getElementById('form');
+const alertEl = document.getElementById('alert');
+const btn     = document.getElementById('submit');
+const openedAt = Date.now();
+let photoFile = null;
+
+const $ = id => document.getElementById(id);
+
+/* Make the unconfigured state obvious before anyone types a word into it. */
+if (!JUBILEE_CONFIGURED){
+  alertEl.innerHTML =
+    `<div class="notice info"><strong>Not live yet.</strong> This form is not connected to its
+     database, so nothing sent from here will be saved. Finish steps 1&ndash;5 of SETUP.md first.</div>`;
+}
+
+/* --- relationship "other" ------------------------------------ */
+$('relationship').addEventListener('change', e => {
+  $('other-wrap').hidden = e.target.value !== 'other';
+});
+
+/* --- character counter --------------------------------------- */
+const msg = $('original_message'), counter = $('counter');
+msg.addEventListener('input', () => {
+  const n = msg.value.trim().length;
+  counter.textContent = `${n} / 4000` + (n < 20 ? ' · at least 20 characters' : '');
+  counter.classList.toggle('over', n > 4000);
+});
+
+/* --- photo picker -------------------------------------------- */
+const drop = $('drop'), fileInput = $('photo');
+drop.addEventListener('click', () => fileInput.click());
+['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => {
+  e.preventDefault(); drop.classList.add('drag');
+}));
+['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => {
+  e.preventDefault(); drop.classList.remove('drag');
+}));
+drop.addEventListener('drop', e => { if (e.dataTransfer.files[0]) usePhoto(e.dataTransfer.files[0]); });
+fileInput.addEventListener('change', e => { if (e.target.files[0]) usePhoto(e.target.files[0]); });
+
+function usePhoto(file){
+  const problem = validatePhoto(file);
+  if (problem){ notify('err', problem); return; }
+  photoFile = file;
+  $('preview').src = URL.createObjectURL(file);
+  $('drop-idle').hidden = true;
+  $('drop-preview').hidden = false;
+  alertEl.innerHTML = '';
+}
+
+/* --- notices -------------------------------------------------- */
+function notify(kind, text){
+  alertEl.innerHTML = `<div class="notice ${kind}">${esc(text)}</div>`;
+  alertEl.scrollIntoView({ behavior:'smooth', block:'center' });
+}
+
+/* --- submit --------------------------------------------------- */
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+
+  if (!JUBILEE_CONFIGURED){
+    notify('err', 'This site is not connected to its database yet, so stories cannot be ' +
+                  'received. (Setup: add the Supabase URL and anon key to ' +
+                  'assets/supabase-config.js — see SETUP.md steps 1–5.)');
+    return;
+  }
+
+  if ($('hp').value) return;                       // bot
+  if (Date.now() - openedAt < 8000){               // filled impossibly fast
+    notify('err', 'Please take a moment longer over your story before sending.');
+    return;
+  }
+
+  const name = $('full_name').value.trim();
+  const text = msg.value.trim();
+
+  if (name.length < 2)          return notify('err', 'Please tell us your name.');
+  if (!$('relationship').value) return notify('err', 'Please tell us how you know Shadreck and Barbara.');
+  if (text.length < 20)         return notify('err', 'Please write at least a couple of sentences.');
+  if (!$('consent').checked)    return notify('err', 'We need your permission before we can share your story.');
+
+  btn.disabled = true;
+  const setBusy = t => { btn.innerHTML = `<span class="spinner"></span>${esc(t)}`; };
+  setBusy('Sending…');
+
+  try {
+    let media = {};
+    if (photoFile) media = await uploadPhotoSet(photoFile, setBusy);
+
+    setBusy('Saving your story…');
+    const { error } = await db.from('stories').insert({
+      full_name:          name,
+      relationship:       $('relationship').value,
+      relationship_other: $('relationship_other').value.trim() || null,
+      location:           $('location').value.trim() || null,
+      email:              $('email').value.trim() || null,
+      phone:              $('phone').value.trim() || null,
+      story_type:         $('story_type').value,
+      original_message:   text,
+      love_is_quote:      $('love_is_quote').value.trim() || null,
+      consent:            true,
+      ...media
+    });
+
+    if (error) throw error;
+
+    form.hidden = true;
+    $('intro').hidden = true;
+    $('done').hidden = false;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  } catch (err) {
+    console.error('[jubilee] submit', err);
+    /* The database raises friendly text for duplicates and rate limits. */
+    const friendly = /already/i.test(err.message || '')
+      ? err.message
+      : 'Something went wrong sending your story. Please check your connection and try again — nothing was lost.';
+    notify('err', friendly);
+    btn.disabled = false;
+    btn.textContent = 'Send my story';
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+.DS_Store
+*.log
+node_modules/
+exports/
+*.local.js
+
+# full-resolution masters stay local (too heavy for the repo)
+assets/originals/

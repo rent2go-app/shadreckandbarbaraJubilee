@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stories of Love — Shadreck &amp; Barbara Golden Jubilee</title>
+<meta name="description" content="Every memory, lesson and blessing shared for the Golden Jubilee of Shadreck and Barbara.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="assets/event-logo.png">
+<style>
+  .filters{display:flex;gap:.8rem;flex-wrap:wrap;justify-content:center;margin:2rem 0 2.5rem}
+  .filters input,.filters select{width:auto;min-width:210px}
+  .modal{
+    position:fixed;inset:0;background:rgba(24,20,15,.72);display:none;z-index:100;
+    padding:4vh 4vw;overflow:auto;backdrop-filter:blur(3px)
+  }
+  .modal.open{display:block}
+  .modal-inner{
+    max-width:760px;margin:0 auto;background:var(--white);border-radius:var(--radius);
+    padding:clamp(1.6rem,4vw,3rem);position:relative
+  }
+  .modal-close{
+    position:absolute;right:14px;top:10px;background:none;border:none;font-size:1.9rem;
+    cursor:pointer;color:var(--ink-soft);line-height:1
+  }
+  .modal img{width:190px;aspect-ratio:4/5;object-fit:cover;border-radius:10px;float:right;margin:0 0 1rem 1.4rem}
+  .modal .full{font-family:var(--serif);font-size:1.28rem;line-height:1.6;white-space:pre-wrap}
+  @media(max-width:560px){.modal img{float:none;margin:0 auto 1.2rem}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="index.html">Shadreck <span>&amp;</span> Barbara</a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a class="btn sm" href="share.html">Share your story</a>
+    </div>
+  </div>
+</nav>
+
+<section>
+  <div class="wrap">
+    <div class="center">
+      <p class="eyebrow">The archive</p>
+      <h1 style="font-size:clamp(2.2rem,5vw,3.6rem)">Stories of Love</h1>
+      <p class="muted" id="summary">Loading&hellip;</p>
+      <div class="rule"></div>
+    </div>
+
+    <div class="filters">
+      <input type="text" id="q" placeholder="Search names, places, words&hellip;" aria-label="Search stories">
+      <select id="rel" aria-label="Filter by relationship">
+        <option value="">Everyone</option>
+        <option value="child">Their children</option>
+        <option value="grandchild">Their grandchildren</option>
+        <option value="sibling">Brothers &amp; sisters</option>
+        <option value="family">Family</option>
+        <option value="friend">Friends</option>
+        <option value="church">Church family</option>
+        <option value="colleague">Colleagues</option>
+        <option value="other">Others</option>
+      </select>
+      <select id="type" aria-label="Filter by kind of story">
+        <option value="">All kinds</option>
+        <option value="testimony">Testimonies</option>
+        <option value="memory">Memories</option>
+        <option value="blessing">Blessings</option>
+        <option value="advice">Lessons</option>
+        <option value="tribute">Tributes</option>
+      </select>
+    </div>
+
+    <div class="tray" id="tray"></div>
+  </div>
+</section>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Full story">
+  <div class="modal-inner">
+    <button class="modal-close" id="modal-close" aria-label="Close">&times;</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p class="small">Shadreck &amp; Barbara &middot; Golden Jubilee &middot; 29 August 2026 &middot; Grand Palm Lodge, Bulawayo</p>
+    <p class="small"><a href="share.html">Add your own story</a></p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/supabase-config.js"></script>
+<script src="assets/app.js"></script>
+<script>
+let all = [];
+const tray = document.getElementById('tray');
+const $ = id => document.getElementById(id);
+
+function matches(s){
+  const q = $('q').value.trim().toLowerCase();
+  if ($('rel').value  && s.relationship !== $('rel').value)  return false;
+  if ($('type').value && s.story_type   !== $('type').value) return false;
+  if (!q) return true;
+  return [s.full_name, s.location, s.public_message, s.love_is_quote, s.relationship_other]
+    .filter(Boolean).join(' ').toLowerCase().includes(q);
+}
+
+function render(){
+  const shown = all.filter(matches);
+  tray.innerHTML = shown.length
+    ? shown.map(s => storyCard(s)).join('')
+    : !all.length
+      /* nothing in the archive at all — invite, don't report a failed search */
+      ? `<div class="empty-state" style="grid-column:1/-1">
+           <p class="serif" style="font-size:1.5rem">The first story could be yours.</p>
+           <p class="muted small">Approved stories appear here as they arrive.</p>
+           <p style="margin-top:1.4rem"><a class="btn" href="share.html">Share your story</a></p>
+         </div>`
+      : `<div class="empty-state" style="grid-column:1/-1">
+           <p class="serif" style="font-size:1.4rem">No stories match that yet.</p>
+           <p class="muted small">Try a different name, place or kind of story.</p>
+         </div>`;
+  $('summary').textContent = all.length
+    ? `${shown.length} of ${all.length} ${all.length === 1 ? 'story' : 'stories'} shared with the family.`
+    : 'No stories published yet — yours could be the first.';
+  initReveal();
+}
+
+async function load(){
+  all = await fetchPublicStories({ surface: 'landing', limit: 500 });
+  render();
+}
+
+['q','rel','type'].forEach(id => $(id).addEventListener('input', render));
+
+/* --- full story modal ---------------------------------------- */
+const modal = $('modal');
+function openStory(id){
+  const s = all.find(x => x.id === id);
+  if (!s) return;
+  const meta  = bylineMeta(s);
+  const photo = s.cropped_photo_url
+    ? `<img src="${esc(s.cropped_photo_url)}" alt="Photograph of ${esc(s.full_name)}">` : '';
+  const quote = s.love_is_quote
+    ? `<p class="quote" style="font-size:1.3rem">&ldquo;Love is ${esc(s.love_is_quote)}&rdquo;</p>` : '';
+  $('modal-body').innerHTML = `
+    ${photo}
+    <span class="tag">${esc(STORY_TYPES[s.story_type] || 'Story')}</span>
+    <h2 style="margin:.8rem 0 .2rem">${esc(s.full_name)}</h2>
+    ${meta ? `<p class="muted small" style="margin-bottom:1.4rem">${esc(meta)}</p>` : ''}
+    ${quote}
+    <p class="full">${esc(s.public_message)}</p>`;
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeStory(){ modal.classList.remove('open'); document.body.style.overflow = ''; }
+
+tray.addEventListener('click', e => {
+  const card = e.target.closest('.card');
+  if (card) openStory(card.dataset.id);
+});
+$('modal-close').addEventListener('click', closeStory);
+modal.addEventListener('click', e => { if (e.target === modal) closeStory(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeStory(); });
+
+load();
+subscribeStories(() => load());
+</script>
+</body>
+</html>
