@@ -116,7 +116,8 @@ create table if not exists stories (
   constraint stories_type_chk    check (story_type in ('testimony','memory','blessing','advice','tribute')),
   constraint stories_name_len    check (char_length(btrim(full_name)) between 2 and 120),
   constraint stories_msg_len     check (char_length(btrim(original_message)) between 20 and 4000),
-  -- 300 words is what reads well on the big screen and fits one page of the book
+  -- Hard ceiling only. The form asks for 150 words; this is the abuse guard,
+  -- set higher so a story submitted under an earlier limit can still be edited.
   constraint stories_word_limit  check (array_length(regexp_split_to_array(btrim(original_message), '\s+'), 1) <= 300),
   constraint stories_quote_len   check (love_is_quote is null or char_length(love_is_quote) <= 200)
 );

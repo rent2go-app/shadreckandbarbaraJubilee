@@ -88,8 +88,8 @@
         <label for="original_message">Your story <span class="req">*</span></label>
         <textarea id="original_message" required
           placeholder="Start anywhere. A Sunday afternoon, a piece of advice, the way they made room for people&hellip;"></textarea>
-        <div class="counter" id="counter">0 of 300 words</div>
-        <p class="hint">Up to 300 words &mdash; about the length that reads well on the big screen and fits one
+        <div class="counter" id="counter">0 of 150 words</div>
+        <p class="hint">Up to 150 words &mdash; about the length that reads well on the big screen and fits one
           page of the book. Your words are stored exactly as you write them.</p>
       </div>
 
@@ -173,7 +173,7 @@ if (!JUBILEE_CONFIGURED){
 }
 
 /* --- word counter (300-word limit) --------------------------- */
-const MAX_WORDS = 300;
+const MAX_WORDS = 150;
 const wordCount = t => t.trim().split(/\s+/).filter(Boolean).length;
 
 const msg = $('original_message'), counter = $('counter');
