@@ -385,8 +385,15 @@ body.wall{
   /* the artwork has a solid black backing — screen blend drops it away */
   mix-blend-mode:screen
 }
+/* The text column is height-bounded so fitMessage() has something real to
+   measure against: the type shrinks to fit rather than the words being cut. */
+.wall-text{
+  max-height:86vh;overflow:hidden;
+  display:flex;flex-direction:column;justify-content:center
+}
 .wall-msg{
-  font-family:var(--serif);font-size:clamp(1.9rem,3.3vw,3.5rem);line-height:1.32;margin:0 0 2.2rem
+  font-family:var(--serif);font-size:2.6vw;line-height:1.32;margin:0 0 1.8rem;
+  text-wrap:pretty
 }
 .wall-quote{
   font-family:var(--serif);font-style:italic;color:var(--gold-lt);
@@ -521,6 +528,8 @@ footer a{color:var(--gold-lt)}
   .wall-slide{grid-template-columns:1fr;gap:1.8rem;text-align:center}
   .wall-slide img{max-width:220px;margin:0 auto}
   .wall-slide img.wall-crest{width:min(58vw,260px)}
+  /* phone: let it scroll, so nothing is clipped by the height clamp */
+  .wall-text{max-height:none;overflow:visible;display:block}
   .wall-msg{font-size:1.45rem;line-height:1.4}
   .wall-quote{font-size:1.15rem}
   .wall-by{font-size:.95rem}

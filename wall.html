@@ -110,13 +110,47 @@ function storySlide(s){
     relationship: settings.show_relationship
   });
 
+  /* Never truncated. fitMessage() below sizes the type so the whole
+     testimony sits on screen — nobody's words get an ellipsis. */
   return `
     <div>${photo}</div>
-    <div>
+    <div class="wall-text">
       ${quote}
-      <p class="wall-msg">${esc(trim(s.public_message, 460))}</p>
+      <p class="wall-msg">${esc(s.public_message)}</p>
       <p class="wall-by">${esc(s.full_name)}${meta ? `<span>${esc(meta)}</span>` : ''}</p>
     </div>`;
+}
+
+/* Fit the testimony to the screen.
+   Short stories get big, generous type; long ones step down until they
+   fit. Starts from a length-based estimate so most slides settle in one
+   pass, then measures for real — estimates alone are unreliable across
+   projector resolutions and aspect ratios. */
+function fitMessage(){
+  const col = slideEl.querySelector('.wall-text');
+  const msg = slideEl.querySelector('.wall-msg');
+  if (!col || !msg) return;
+
+  /* On a handset the wall stacks and scrolls, so leave the type alone. */
+  if (window.innerWidth <= 820){ msg.style.fontSize = ''; return; }
+
+  const words = (msg.textContent || '').trim().split(/\s+/).filter(Boolean).length;
+
+  let size = words <=  20 ? 4.2
+           : words <=  40 ? 3.5
+           : words <=  70 ? 2.9
+           : words <= 110 ? 2.4
+           : words <= 160 ? 2.0
+           :                1.7;               // vw
+
+  const MIN = 0.95;
+  msg.style.fontSize = size + 'vw';
+
+  let guard = 60;                              // never loop away on a bad measure
+  while (col.scrollHeight > col.clientHeight && size > MIN && guard-- > 0){
+    size -= 0.1;
+    msg.style.fontSize = size + 'vw';
+  }
 }
 
 function qrSlide(){
@@ -149,6 +183,7 @@ function show(html){
   const wait  = style === 'none' ? 0 : 600;
   setTimeout(() => {
     slideEl.innerHTML = html;
+    fitMessage();                              // size the type before it fades in
     requestAnimationFrame(() => slideEl.classList.add('in'));
   }, wait);
 }
@@ -253,6 +288,9 @@ function wakeControls(){
 }
 ['mousemove','touchstart','click'].forEach(ev => document.addEventListener(ev, wakeControls));
 wakeControls();
+
+/* Plugging in a projector changes the resolution mid-show — refit. */
+window.addEventListener('resize', fitMessage);
 
 /* Optional background music. Runs silent by default — press M and choose
    a file from this machine. Nothing is uploaded and nothing is stored, so
