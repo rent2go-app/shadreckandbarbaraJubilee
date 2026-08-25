@@ -266,6 +266,7 @@ const NAV_LINKS = [
   { key: 'home',      href: 'index.html',   label: 'Home' },
   { key: 'stories',   href: 'stories.html', label: 'Stories' },
   { key: 'slideshow', href: 'wall.html',    label: 'Slideshow', target: '_blank' },
+  { key: 'programme', href: 'programme.html', label: 'Programme', target: '_blank' },
   { key: 'admin',     href: 'admin.html',   label: 'Family login' }
 ];
 
