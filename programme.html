@@ -124,6 +124,17 @@
     font-family:var(--serif);font-style:italic;font-size:clamp(1.2rem,2.2vw,2.3rem);
     color:#f2e9d6;margin:1.3rem 0 0;line-height:1.3
   }
+  .p-time{
+    display:inline-block;margin:1.6rem 0 0;padding:.38rem 1.1rem;border-radius:999px;
+    border:1px solid rgba(217,185,120,.45);color:var(--gold-lt);
+    font-family:var(--sans);font-size:.72rem;font-weight:600;
+    letter-spacing:.2em;text-transform:uppercase
+  }
+  .rail-item .mins{
+    display:block;font-style:normal;font-size:.62rem;letter-spacing:.16em;
+    text-transform:uppercase;color:#6f6555;margin-top:.15rem
+  }
+  .rail-item.now .mins{color:var(--gold-lt)}
   .p-rule{width:70px;height:1px;background:rgba(217,185,120,.6);margin:2.2rem auto;position:relative}
   .p-rule::after{
     content:'';position:absolute;left:50%;top:50%;width:7px;height:7px;
@@ -218,9 +229,11 @@ const SLIDES = [
   { kicker:'Round One',
     title:'Tributes',
     sub:'Words from those who know them best',
-    lines:[
-      {t:'Alex Nkala &middot; Dumi Nkala', c:'name'},
-      {t:'Live Entertainment &mdash; Live Band &middot; Traditional Dancers', c:'quiet'}],
+    pair:[
+      { kicker:'About Barbara',  title:'Auntie Nomsa' },
+      { kicker:'About Shadreck', title:'Auntie Grace' }],
+    mins:10,
+    foot:[{t:'Live Entertainment &mdash; Live Band &middot; Traditional Dancers', c:'quiet'}],
     tag:'Tributes I' },
 
   { kicker:'Their Story',
@@ -236,6 +249,7 @@ const SLIDES = [
     lines:[
       {t:'Ntando &amp; Thurston &middot; Ndaba &amp; Tendayi', c:'name'},
       {t:'Live Entertainment &mdash; Live Band &middot; Dancers &middot; Choral Singers', c:'quiet'}],
+    mins:10,
     tag:'Tributes II' },
 
   { kicker:'The Next Generation',
@@ -325,7 +339,7 @@ listEl.innerHTML = SLIDES.map((s, n) => `
     <button class="rail-item" data-n="${n}">
       <span class="marker"></span>
       <span class="n">${String(n + 1).padStart(2, '0')}</span>
-      <span class="t">${s.tag}</span>
+      <span class="t">${s.tag}${s.mins ? `<em class="mins">${s.mins} min</em>` : ''}</span>
     </button>
   </li>`).join('');
 
@@ -365,8 +379,16 @@ function render(s, n){
         </div>`).join('')}</div>`
     : '';
 
+  const time = s.mins
+    ? `<p class="p-time">${s.mins} minutes allocated</p>` : '';
+
+  const foot = s.foot
+    ? `<ul class="p-lines" style="margin-top:2.4rem">${
+        s.foot.map(l => `<li class="${l.c || ''}">${l.t}</li>`).join('')}</ul>`
+    : '';
+
   return `<p class="p-num">Moment ${String(n + 1).padStart(2,'0')} of ${SLIDES.length}</p>
-          ${crest}${kicker}${title}${sub}${lines}${pair}`;
+          ${crest}${kicker}${title}${sub}${time}${lines}${pair}${foot}`;
 }
 
 function go(n){
