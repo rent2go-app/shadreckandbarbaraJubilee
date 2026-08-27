@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Photo Reel — Shadreck &amp; Barbara Golden Jubilee</title>
+<meta name="description" content="Fifty years in photographs — the Nkala family album.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="assets/event-logo.png">
+<style>
+  body.reel{background:#0d0b08;color:#f7f1e4;margin:0;overflow:hidden;height:100vh}
+
+  /* ---------- the frame ---------- */
+  /* column, so the caption sits under the frame instead of across it —
+     many of these are scanned A4 album pages and run tall */
+  .reel-stage{
+    position:relative;height:100vh;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:1.1rem;padding:3.5vh 4vw
+  }
+  /* a gold-leaf mount, like a framed print on a wall */
+  .frame{
+    position:relative;max-width:min(88vw,1500px);max-height:88vh;
+    padding:clamp(10px,1.1vw,20px);border-radius:3px;
+    background:linear-gradient(150deg,#7a5a22,#d9b978 28%,#8a6427 55%,#f0dcae 78%,#8a6427);
+    box-shadow:0 40px 110px rgba(0,0,0,.75), 0 0 0 1px rgba(0,0,0,.5) inset
+  }
+  .frame-inner{
+    position:relative;overflow:hidden;background:#000;border-radius:1px;
+    box-shadow:0 0 0 1px rgba(0,0,0,.55) inset
+  }
+  .frame img{
+    display:block;max-width:100%;max-height:80vh;width:auto;height:auto;
+    opacity:0;transition:opacity 1.2s ease
+  }
+  .frame img.in{opacity:1}
+  /* the slow drift — a still photograph that breathes */
+  .frame img.kb{animation:kenburns 14s ease-out forwards}
+  @keyframes kenburns{
+    from{transform:scale(1.005)}
+    to  {transform:scale(1.075)}
+  }
+  .frame::after{ /* soft sheen across the glass */
+    content:'';position:absolute;inset:0;pointer-events:none;border-radius:3px;
+    background:linear-gradient(115deg,rgba(255,255,255,.10),transparent 32%,transparent 68%,rgba(255,255,255,.05))
+  }
+
+  .caption{
+    margin:0;text-align:center;flex:none;
+    font-family:var(--serif);font-size:clamp(1rem,1.5vw,1.5rem);color:var(--gold-lt);
+    letter-spacing:.05em;pointer-events:none
+  }
+  .counter{
+    position:fixed;right:22px;top:18px;font-size:.72rem;letter-spacing:.18em;
+    color:#6d6353;font-family:var(--sans)
+  }
+  .bar{position:fixed;left:0;bottom:0;height:3px;background:var(--gold);width:0;z-index:5}
+
+  /* ---------- controls ---------- */
+  .ctl{
+    position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-14px);
+    display:flex;gap:.55rem;align-items:center;z-index:20;
+    opacity:0;visibility:hidden;transition:.3s
+  }
+  .ctl.in{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
+  .ctl a,.ctl button{
+    font-family:var(--sans);font-size:.8rem;font-weight:600;color:var(--gold-lt);
+    background:rgba(16,13,10,.9);border:1px solid rgba(217,185,120,.45);
+    border-radius:999px;padding:.5rem 1.05rem;cursor:pointer;text-decoration:none
+  }
+  .ctl a:hover,.ctl button:hover{background:var(--gold);color:#241f19}
+
+  /* ---------- contact-sheet view (G) ---------- */
+  .sheet{
+    position:fixed;inset:0;background:rgba(10,8,6,.97);z-index:40;overflow:auto;
+    padding:4vh 4vw;display:none
+  }
+  .sheet.open{display:block}
+  .sheet h2{
+    font-family:var(--serif);color:var(--gold-lt);text-align:center;font-size:1.9rem;margin:0 0 1.6rem
+  }
+  .sheet-grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px
+  }
+  .sheet-grid img{
+    width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px;cursor:pointer;
+    border:1px solid rgba(217,185,120,.25);transition:.2s;background:#1a1611
+  }
+  .sheet-grid img:hover{border-color:var(--gold);transform:scale(1.03)}
+
+  @media(max-width:820px){
+    .frame{max-width:94vw;padding:8px}
+    .frame img{max-height:64vh}
+    .caption{font-size:.95rem}
+    .ctl{width:94%;justify-content:center;flex-wrap:wrap}
+  }
+</style>
+</head>
+<body class="reel">
+
+<div class="reel-stage">
+  <figure class="frame" id="frame">
+    <div class="frame-inner"><img id="photo" alt="Family photograph"></div>
+  </figure>
+  <p class="caption" id="caption">Fifty Years &middot; The Nkala Family Album</p>
+</div>
+<div class="counter" id="counter"></div>
+<div class="bar" id="bar"></div>
+
+<div class="ctl" id="ctl">
+  <a href="index.html">&#10005;&nbsp; Exit</a>
+  <button id="b-prev">&larr;</button>
+  <button id="b-play">Pause</button>
+  <button id="b-next">&rarr;</button>
+  <button id="b-sheet">All photos</button>
+  <button id="b-shuffle">Shuffle</button>
+  <button id="b-full">Fullscreen</button>
+</div>
+
+<div class="sheet" id="sheet">
+  <h2>Fifty Years in Photographs</h2>
+  <div class="sheet-grid" id="sheet-grid"></div>
+</div>
+
+<script src="assets/gallery-manifest.js"></script>
+<script>
+/* ------------------------------------------------------------------
+   The photo reel.
+
+   Photographs are held in Supabase Storage, not in the repository, so
+   the family can add more without a redeploy and a clone stays small.
+
+   Each photo is shown inside a gold-leaf mount and drifts very slowly
+   (a Ken Burns move) so a still image still feels alive on a big screen
+   across a long evening. The frame hugs the photograph, so portraits and
+   landscapes both sit properly rather than being cropped to a fixed box.
+------------------------------------------------------------------- */
+
+const HOLD = 9000;               // ms per photograph
+const img      = document.getElementById('photo');
+const frame    = document.getElementById('frame');
+const counter  = document.getElementById('counter');
+const bar      = document.getElementById('bar');
+const sheet    = document.getElementById('sheet');
+
+let order = GALLERY.slice();
+let i = 0, paused = false, timer = null, ticker = null;
+
+/* Preload the next one so the change is never a blank frame. */
+function preload(n){ const p = new Image(); p.src = GALLERY_FULL(order[n % order.length]); }
+
+function show(n){
+  i = (n + order.length) % order.length;
+  img.classList.remove('in', 'kb');
+
+  const next = new Image();
+  next.onload = () => {
+    img.src = next.src;
+    /* restart the drift from scratch for each photograph */
+    void img.offsetWidth;
+    img.classList.add('in', 'kb');
+  };
+  next.onerror = () => { if (!paused) advance(1); };   // skip anything missing
+  next.src = GALLERY_FULL(order[i]);
+
+  counter.textContent = `${i + 1} / ${order.length}`;
+  preload(i + 1);
+  schedule();
+}
+
+function advance(step){ show(i + step); }
+
+function schedule(){
+  clearTimeout(timer); clearInterval(ticker);
+  bar.style.width = '0%';
+  if (paused) return;
+  const started = Date.now();
+  ticker = setInterval(() => {
+    bar.style.width = Math.min(100, ((Date.now() - started) / HOLD) * 100) + '%';
+  }, 120);
+  timer = setTimeout(() => advance(1), HOLD);
+}
+
+/* ---------- contact sheet ---------- */
+document.getElementById('sheet-grid').innerHTML =
+  GALLERY.map((n, k) => `<img loading="lazy" src="${GALLERY_THUMB(n)}" data-k="${k}" alt="">`).join('');
+
+document.getElementById('sheet-grid').addEventListener('click', e => {
+  if (e.target.tagName !== 'IMG') return;
+  const name = GALLERY[Number(e.target.dataset.k)];
+  sheet.classList.remove('open');
+  show(order.indexOf(name));
+});
+
+const toggleSheet = () => sheet.classList.toggle('open');
+
+/* ---------- controls ---------- */
+const playBtn = document.getElementById('b-play');
+function togglePlay(){
+  paused = !paused;
+  playBtn.textContent = paused ? 'Play' : 'Pause';
+  if (paused){ clearTimeout(timer); clearInterval(ticker); } else schedule();
+}
+function toggleFull(){
+  document.fullscreenElement ? document.exitFullscreen()
+                             : document.documentElement.requestFullscreen();
+}
+function shuffle(){
+  order = order.map(v => [Math.random(), v]).sort((a,b) => a[0]-b[0]).map(p => p[1]);
+  show(0);
+}
+
+document.getElementById('b-prev').addEventListener('click', () => advance(-1));
+document.getElementById('b-next').addEventListener('click', () => advance(1));
+document.getElementById('b-play').addEventListener('click', togglePlay);
+document.getElementById('b-sheet').addEventListener('click', toggleSheet);
+document.getElementById('b-shuffle').addEventListener('click', shuffle);
+document.getElementById('b-full').addEventListener('click', toggleFull);
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight'){ advance(1); }
+  if (e.key === 'ArrowLeft'){  advance(-1); }
+  if (e.key === ' '){ e.preventDefault(); togglePlay(); }
+  if (e.key === 'f' || e.key === 'F') toggleFull();
+  if (e.key === 'g' || e.key === 'G') toggleSheet();
+  if (e.key === 's' || e.key === 'S') shuffle();
+  if (e.key === 'Escape'){
+    if (sheet.classList.contains('open')) sheet.classList.remove('open');
+    else if (!document.fullscreenElement) location.href = 'index.html';
+  }
+});
+
+/* tap right/left of the frame to move, for a tablet */
+document.querySelector('.reel-stage').addEventListener('click', e => {
+  advance(e.clientX > window.innerWidth / 2 ? 1 : -1);
+});
+
+/* controls appear on movement, then get out of the way */
+const ctl = document.getElementById('ctl');
+let hide = null;
+function wake(){
+  ctl.classList.add('in');
+  document.body.style.cursor = 'default';
+  clearTimeout(hide);
+  hide = setTimeout(() => {
+    ctl.classList.remove('in');
+    if (!sheet.classList.contains('open')) document.body.style.cursor = 'none';
+  }, 3500);
+}
+['mousemove','touchstart','click','keydown'].forEach(ev => document.addEventListener(ev, wake));
+
+shuffle();   /* start on a random photograph, so it is different each time */
+wake();
+</script>
+</body>
+</html>
