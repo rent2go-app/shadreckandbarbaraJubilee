@@ -125,16 +125,43 @@
     color:#f2e9d6;margin:1.3rem 0 0;line-height:1.3
   }
   .p-time{
-    display:inline-block;margin:1.6rem 0 0;padding:.38rem 1.1rem;border-radius:999px;
-    border:1px solid rgba(217,185,120,.45);color:var(--gold-lt);
-    font-family:var(--sans);font-size:.72rem;font-weight:600;
-    letter-spacing:.2em;text-transform:uppercase
+    font-family:var(--serif);font-weight:600;line-height:1;
+    font-size:clamp(1.9rem,4.2vw,4rem);margin:0 0 1.4rem;
+    color:var(--gold-lt);letter-spacing:.01em
+  }
+  .p-time span{
+    display:block;font-family:var(--sans);font-size:.6rem;font-weight:700;
+    letter-spacing:.34em;text-transform:uppercase;color:#6f6555;margin-bottom:.7rem
   }
   .rail-item .mins{
     display:block;font-style:normal;font-size:.62rem;letter-spacing:.16em;
     text-transform:uppercase;color:#6f6555;margin-top:.15rem
   }
   .rail-item.now .mins{color:var(--gold-lt)}
+  /* hymn words: full width, one line of the hymn per line on screen */
+  .p-verse{margin:2.4rem auto 0;max-width:min(94%,1150px)}
+  .p-verse p{
+    font-family:var(--serif);font-size:clamp(1.15rem,2.15vw,2.15rem);line-height:1.5;
+    margin:0 0 .35rem;color:#f7f1e4
+  }
+
+  /* ---- entertainment: give the music its own look ---- */
+  .prog-slide.feature{position:relative}
+  .prog-slide.feature::before{
+    content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:120%;height:150%;z-index:-1;
+    background:radial-gradient(ellipse at center,rgba(184,137,59,.20),transparent 62%)
+  }
+  .prog-slide.feature .p-kicker{color:#f0d69b}
+  .prog-slide.feature .p-kicker::before{content:'\266A\00a0\00a0'}
+  .prog-slide.feature .p-kicker::after{content:'\00a0\00a0\266A'}
+  .prog-slide.feature .p-title{
+    background:linear-gradient(160deg,#fff3d4,#f0d69b,var(--gold));
+    -webkit-background-clip:text;background-clip:text
+  }
+  .prog-slide.feature .p-sub{color:#f6ecd6}
+  .rail-item .note{color:var(--gold-dk);font-style:normal;margin-right:.25rem}
+  .rail-item.now .note{color:var(--gold)}
   .p-rule{width:70px;height:1px;background:rgba(217,185,120,.6);margin:2.2rem auto;position:relative}
   .p-rule::after{
     content:'';position:absolute;left:50%;top:50%;width:7px;height:7px;
@@ -196,63 +223,108 @@ const SLIDES = [
     lines:[{t:'&ldquo;We Were 2&hellip; Now We Are Many&rdquo;', c:'quiet'}],
     tag:'Welcome' },
 
-  { kicker:'As the Evening Begins',
+  { time:'3:30 &ndash; 5:30 PM',
+    kicker:'The celebration begins the moment you arrive',
     title:'Golden Hour Lawn Reception',
     sub:'Welcome Drinks &middot; Canap&eacute;s &middot; Photography',
-    lines:[{t:'Live Band &middot; Choral Singers &middot; Traditional Dancers', c:'quiet'}],
+    lines:[
+      {t:'Family &amp; Guest Portraits &middot; Mingling &amp; Fellowship'},
+      {t:'Live Band &middot; Traditional &amp; Cultural Dancers', c:'quiet'}],
+    feature:true,
     tag:'Reception' },
 
-  { kicker:'eBika &middot; eHaya',
+  { time:'5:30 &ndash; 5:45 PM',
+    kicker:'eBika &middot; eHaya',
     title:'Ceremonial Proclamation &amp; Grand Entrance',
-    sub:'&ldquo;Count Your Blessings&rdquo;',
-    lines:[{t:'The Nkala Family Procession', c:'quiet'}],
-    tag:'Entrance' },
+    sub:'The Poet Lady Leads the Procession',
+    lines:[
+      {t:'The generations that have come from their union', c:'quiet'},
+      {t:'culminating in the arrival of Shadreck &amp; Barbara Nkala', c:'quiet'}],
+    tag:'Grand Entrance' },
 
-  { kicker:'Before Anything Else',
-    title:'We Begin in Prayer',
-    sub:'Opening Prayer &amp; Dedication',
+  { lyric:true,
+    kicker:'Official Entrance Song &mdash; please join in',
+    title:'Count Your Blessings',
+    verse:[
+      'When upon life&rsquo;s billows you are tempest-tossed,',
+      'When you are discouraged, thinking all is lost,',
+      'Count your many blessings, name them one by one,',
+      'And it will surprise you what the Lord hath done.'],
+    feature:true,
+    tag:'Entrance Song' },
+
+  { lyric:true,
+    kicker:'Chorus',
+    title:'Count Your Blessings',
+    verse:[
+      'Count your blessings, name them one by one,',
+      'Count your blessings, see what God hath done;',
+      'Count your blessings, name them one by one,',
+      'Count your many blessings, see what God hath done.'],
+    feature:true,
+    tag:'Chorus' },
+
+  { time:'5:45 PM',
+    kicker:'Before Anything Else',
+    title:'Opening Prayer &amp; Dedication',
     lines:[{t:'Bishop Ngulube', c:'name'}],
     tag:'Opening Prayer' },
 
-  { kicker:'Golden Jubilee Sermon',
+  { time:'5:50 PM',
+    kicker:'Golden Jubilee Sermon',
     title:'A Word for Fifty Years',
     lines:[{t:'Bishop Mnkandla', c:'name'}],
     tag:'Sermon' },
 
-  { kicker:'Their Story',
-    title:'How It All Began',
+  { time:'6:00 &ndash; 6:20 PM',
+    kicker:'Their Story',
+    title:'The Two Who Started It All',
     pair:[
-      { kicker:'Chapter One', title:'Before We Became Us', sub:'Early Life' },
-      { kicker:'Chapter Two', title:'And Then There Were Two', sub:'How They Met' }],
-    tag:'Their Story I' },
+      { kicker:'About Shadreck', title:'Grace Dube',  sub:'6:00 &ndash; 6:10' },
+      { kicker:'About Barbara',  title:'Nomsa Jowah', sub:'6:11 &ndash; 6:20' }],
+    tag:'Their Story' },
 
-  { kicker:'Round One',
+  { time:'6:20 &ndash; 6:40 PM',
+    kicker:'Please be seated',
+    title:'Dinner Is Served',
+    sub:'The band plays on',
+    tag:'Dinner' },
+
+  { time:'6:40 &ndash; 7:00 PM',
+    kicker:'Round One',
     title:'Tributes',
     sub:'Words from those who know them best',
-    pair:[
-      { kicker:'About Barbara',  title:'Auntie Nomsa' },
-      { kicker:'About Shadreck', title:'Auntie Grace' }],
-    mins:10,
-    foot:[{t:'Live Entertainment &mdash; Live Band &middot; Traditional Dancers', c:'quiet'}],
+    lines:[
+      {t:'Alex Nkala &middot; Dumi Nkala', c:'name'},
+      {t:'Mr Gumpo &middot; Virginia Phiri', c:'name'}],
     tag:'Tributes I' },
 
-  { kicker:'Their Story',
-    title:'Two Became a Family',
-    pair:[
-      { kicker:'Chapter Three', title:'The Day We Said &ldquo;I Do&rdquo;', sub:'The Wedding' },
-      { kicker:'Chapter Four',  title:'We Were Two&hellip; Now We Are Many', sub:'Growing the Family' }],
-    tag:'Their Story II' },
+  { time:'7:00 &ndash; 7:10 PM',
+    kicker:'Live Entertainment',
+    title:'Traditional Dancers',
+    sub:'Act Three',
+    feature:true,
+    tag:'Dancers III' },
 
-  { kicker:'Round Two',
+  { time:'7:10 &ndash; 7:30 PM',
+    kicker:'Round Two',
     title:'Tributes',
     sub:'The story continues, in other voices',
     lines:[
       {t:'Ntando &amp; Thurston &middot; Ndaba &amp; Tendayi', c:'name'},
-      {t:'Live Entertainment &mdash; Live Band &middot; Dancers &middot; Choral Singers', c:'quiet'}],
-    mins:10,
+      {t:'Edgar Nxumalo &middot; Phathi Mavengere', c:'name'}],
     tag:'Tributes II' },
 
-  { kicker:'The Next Generation',
+  { time:'7:30 &ndash; 7:40 PM',
+    kicker:'Live Entertainment',
+    title:'The Band Plays',
+    sub:'Dessert served at the tables',
+    lines:[{t:'Please stay seated &mdash; the programme continues', c:'quiet'}],
+    feature:true,
+    tag:'Dessert' },
+
+  { time:'7:45 &ndash; 8:00 PM',
+    kicker:'The Next Generation',
     title:'A Golden Rose From Each of Us',
     sub:'A Special Tribute from the Grandchildren',
     lines:[
@@ -260,53 +332,67 @@ const SLIDES = [
       {t:'Presented by Thando on behalf of the Grandchildren', c:'quiet'}],
     tag:'Grandchildren' },
 
-  { kicker:'Chapter Five',
-    title:'Building a Life Together',
-    sub:'Work &middot; Business &middot; Achievement &middot; Legacy',
-    tag:'Their Story III' },
+  { time:'8:00 &ndash; 8:10 PM',
+    kicker:'Live Entertainment',
+    title:'Traditional Dancers',
+    sub:'Act Four',
+    feature:true,
+    tag:'Dancers IV' },
 
-  { kicker:'From Those Who Walked Beside Them',
-    title:'Voices of Love',
-    sub:'Friends &middot; Church &middot; Extended Family',
-    tag:'Voices of Love' },
+  { time:'8:10 &ndash; 8:15 PM',
+    kicker:'Special Nkala Tribute',
+    title:'A Word from the Family',
+    lines:[{t:'Herbet Nkala', c:'name'}],
+    tag:'Nkala Tribute' },
 
-  { kicker:'Take to the Floor',
+  { time:'8:15 &ndash; 8:30 PM',
+    kicker:'Take to the Floor',
     title:'Come &amp; Dance!',
-    sub:'Live Band &middot; Dance Floor',
+    sub:'Live Band &middot; Dance Floor Open',
+    feature:true,
     tag:'Dancing' },
 
-  { crest:true,
-    kicker:'The Golden Jubilee Moment',
-    title:'Shadreck &amp; Barbara',
-    sub:'In Their Own Words',
-    lines:[{t:'50 Years &middot; Reflections &middot; Gratitude &middot; Wisdom &middot; The Future', c:'quiet'}],
-    tag:'The Couple' },
+  { time:'8:30 &ndash; 9:00 PM',
+    kicker:'Open Mic',
+    title:'Voices of Love',
+    sub:'Friends &middot; Church &middot; Extended Family',
+    lines:[{t:'Six voices from the floor', c:'quiet'}],
+    tag:'Voices of Love' },
 
-  { kicker:'Chapter Six',
-    title:'Walking Into the Sunset Together',
-    sub:'&ldquo;The Best Is Yet to Come&rdquo;',
-    tag:'Their Story IV' },
-
-  { kicker:'Fifty Golden Years',
+  { time:'9:00 &ndash; 9:10 PM',
+    kicker:'Fifty Golden Years',
     title:'The Cake Ceremony',
     sub:'Cake Cutting &middot; Anniversary Toast &middot; Celebration Photographs',
     tag:'Cake &amp; Toast' },
 
-  { kicker:'On Behalf of the Family',
-    title:'Vote of Thanks',
-    lines:[{t:'Ndaba', c:'name'}],
-    tag:'Vote of Thanks' },
+  { crest:true,
+    time:'9:10 &ndash; 9:30 PM',
+    kicker:'The Golden Jubilee Moment',
+    title:'Walking Into the Sunset Together',
+    sub:'&ldquo;The Best Is Yet to Come&rdquo;',
+    lines:[
+      {t:'Shadreck &amp; Barbara', c:'name'},
+      {t:'50 Years &middot; Reflections &middot; Gratitude &middot; Wisdom &middot; The Future', c:'quiet'}],
+    tag:'The Couple' },
 
-  { kicker:'Marriage &amp; Family Blessing',
+  { time:'9:30 &ndash; 9:40 PM',
+    kicker:'Marriage &amp; Family Blessing',
     title:'A Blessing Over the Generations',
     lines:[
       {t:'Pastor Jongeni Ncube', c:'name'},
       {t:'Children &amp; Grandchildren Gather Around Gogo &amp; Khulu', c:'quiet'}],
     tag:'Blessing' },
 
+  { time:'9:40 PM',
+    kicker:'On Behalf of the Family',
+    title:'Vote of Thanks',
+    lines:[{t:'Ndaba Nkala', c:'name'}],
+    tag:'Vote of Thanks' },
+
   { kicker:'And Now&hellip;',
     title:'We Celebrate!',
     sub:'Live Band &middot; Dancing &middot; Family &middot; Fellowship',
+    feature:true,
     tag:'Celebration' },
 
   { crest:true,
@@ -339,7 +425,8 @@ listEl.innerHTML = SLIDES.map((s, n) => `
     <button class="rail-item" data-n="${n}">
       <span class="marker"></span>
       <span class="n">${String(n + 1).padStart(2, '0')}</span>
-      <span class="t">${s.tag}${s.mins ? `<em class="mins">${s.mins} min</em>` : ''}</span>
+      <span class="t">${s.feature ? '<em class="note">&#9834;</em>' : ''}${s.tag}${
+        s.time ? `<em class="mins">${s.time}</em>` : ''}</span>
     </button>
   </li>`).join('');
 
@@ -379,8 +466,12 @@ function render(s, n){
         </div>`).join('')}</div>`
     : '';
 
-  const time = s.mins
-    ? `<p class="p-time">${s.mins} minutes allocated</p>` : '';
+  const time = s.time
+    ? `<p class="p-time"><span>On the night</span>${s.time}</p>` : '';
+
+  /* hymn words for the big screen — bigger, and one line per line */
+  const verse = s.verse
+    ? `<div class="p-verse">${s.verse.map(l => `<p>${l}</p>`).join('')}</div>` : '';
 
   const foot = s.foot
     ? `<ul class="p-lines" style="margin-top:2.4rem">${
@@ -388,7 +479,7 @@ function render(s, n){
     : '';
 
   return `<p class="p-num">Moment ${String(n + 1).padStart(2,'0')} of ${SLIDES.length}</p>
-          ${crest}${kicker}${title}${sub}${time}${lines}${pair}${foot}`;
+          ${time}${crest}${kicker}${title}${sub}${verse}${lines}${pair}${foot}`;
 }
 
 function go(n){
@@ -396,6 +487,7 @@ function go(n){
   slideEl.classList.remove('in');
   setTimeout(() => {
     slideEl.innerHTML = render(SLIDES[i], i);
+    slideEl.classList.toggle('feature', !!SLIDES[i].feature);
     requestAnimationFrame(() => slideEl.classList.add('in'));
   }, 240);
   paintRail();
