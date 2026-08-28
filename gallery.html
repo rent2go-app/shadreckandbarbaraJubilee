@@ -18,12 +18,12 @@
      many of these are scanned A4 album pages and run tall */
   .reel-stage{
     position:relative;height:100vh;display:flex;flex-direction:column;
-    align-items:center;justify-content:center;gap:1.1rem;padding:3.5vh 4vw
+    align-items:center;justify-content:center;gap:.5rem;padding:1.2vh 1.5vw
   }
   /* a gold-leaf mount, like a framed print on a wall */
   .frame{
     position:relative;max-width:min(88vw,1500px);max-height:88vh;
-    padding:clamp(10px,1.1vw,20px);border-radius:3px;
+    padding:clamp(7px,.7vw,14px);border-radius:3px;
     background:linear-gradient(150deg,#7a5a22,#d9b978 28%,#8a6427 55%,#f0dcae 78%,#8a6427);
     box-shadow:0 40px 110px rgba(0,0,0,.75), 0 0 0 1px rgba(0,0,0,.5) inset
   }
@@ -32,12 +32,12 @@
     box-shadow:0 0 0 1px rgba(0,0,0,.55) inset
   }
   .frame img{
-    display:block;max-width:100%;max-height:80vh;width:auto;height:auto;
+    display:block;max-width:100%;max-height:88vh;width:auto;height:auto;
     opacity:0;transition:opacity .45s ease
   }
   .frame img.in{opacity:1}
   /* the slow drift — a still photograph that breathes */
-  .frame img.kb{animation:kenburns 3.4s linear forwards}
+  .frame img.kb{animation:kenburns 4s linear forwards}
   @keyframes kenburns{
     from{transform:scale(1.004)}
     to  {transform:scale(1.035)}
@@ -51,7 +51,7 @@
   .cap-sub{color:#9a8f7c;font-size:.8em}
   .caption{
     margin:0;text-align:center;flex:none;
-    font-family:var(--serif);font-size:clamp(1rem,1.5vw,1.5rem);color:var(--gold-lt);
+    font-family:var(--serif);font-size:clamp(.85rem,1.1vw,1.15rem);color:var(--gold-lt);
     letter-spacing:.05em;pointer-events:none
   }
   .counter{
