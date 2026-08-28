@@ -47,6 +47,8 @@
     background:linear-gradient(115deg,rgba(255,255,255,.10),transparent 32%,transparent 68%,rgba(255,255,255,.05))
   }
 
+  .cap-dot{color:#6d6353;margin:0 .2em}
+  .cap-sub{color:#9a8f7c;font-size:.8em}
   .caption{
     margin:0;text-align:center;flex:none;
     font-family:var(--serif);font-size:clamp(1rem,1.5vw,1.5rem);color:var(--gold-lt);
@@ -144,6 +146,7 @@ const frame    = document.getElementById('frame');
 const counter  = document.getElementById('counter');
 const bar      = document.getElementById('bar');
 const sheet    = document.getElementById('sheet');
+const caption  = document.getElementById('caption');
 
 let order = GALLERY.slice();
 let i = 0, paused = false, timer = null, ticker = null;
@@ -166,6 +169,10 @@ function show(n){
   next.src = GALLERY_FULL(order[i]);
 
   counter.textContent = `${i + 1} / ${order.length}`;
+  const sec = (typeof GALLERY_SECTION !== 'undefined') && GALLERY_SECTION[order[i]];
+  caption.innerHTML = sec
+    ? `${sec} <span class="cap-dot">&middot;</span> <span class="cap-sub">The Nkala Family Album</span>`
+    : 'Fifty Years &middot; The Nkala Family Album';
   preload(i + 1);
   schedule();
 }
