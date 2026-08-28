@@ -156,27 +156,54 @@ function preload(n){ const p = new Image(); p.src = GALLERY_FULL(order[n % order
 
 function show(n){
   i = (n + order.length) % order.length;
-  img.classList.remove('in', 'kb');
-
-  /* Show the thumbnail the instant it lands (it is ~60KB), then swap in the
-     full photograph when it arrives. On a slow line the screen fills at once
-     instead of sitting black waiting for a 200KB+ image. */
   const name = order[i];
 
+  /* Put a photograph on screen and start its drift from scratch.
+     The old image is hidden with the transition switched OFF first, so the
+     scale snapping back from the end of the last drift to the start of the
+     next one happens while nothing is visible. Resetting it in view is what
+     made each picture appear large and then jump smaller. */
+  /* Size the element ourselves from the aspect ratio, so the 520px
+     thumbnail occupies exactly the same box the 1600px file will. Without
+     this the thumbnail draws small and the photograph jumps bigger when the
+     full file lands. */
+  function fit(w, h){
+    const availH = window.innerHeight * 0.88;
+    const availW = Math.min(window.innerWidth * 0.95, 2000) - 40;
+    const ratio  = w / h;
+    let dh = Math.min(availH, availW / ratio);
+    img.style.height = dh + 'px';
+    img.style.width  = (dh * ratio) + 'px';
+  }
+
+  function paint(src, w, h, restart){
+    if (!restart){ img.src = src; return; }     // sharper file, same box
+    img.style.transition = 'none';
+    img.classList.remove('in', 'kb');           // opacity 0, drift back to start
+    img.src = src;
+    fit(w, h);
+    /* two frames guarantees the browser actually paints it hidden, so the
+       scale resetting from the end of the last drift is never seen */
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (order[i] !== name) return;
+      img.style.transition = '';
+      img.classList.add('in', 'kb');
+    }));
+  }
+
+  /* The thumbnail lands almost at once (~60KB) so the screen never sits
+     black; the full photograph replaces it underneath the same drift. */
   const small = new Image();
   small.onload = () => {
-    if (order[i] !== name) return;              // moved on already
-    img.src = small.src;
-    void img.offsetWidth;
-    img.classList.add('in', 'kb');
+    if (order[i] === name) paint(small.src, small.naturalWidth, small.naturalHeight, true);
   };
   small.src = GALLERY_THUMB(name);
 
   const next = new Image();
   next.onload = () => {
     if (order[i] !== name) return;
-    img.src = next.src;                         // straight swap, no flicker
-    img.classList.add('in');
+    const shown = img.classList.contains('in');
+    paint(next.src, next.naturalWidth, next.naturalHeight, !shown);
   };
   next.onerror = () => { if (!paused) advance(1); };   // skip anything missing
   next.src = GALLERY_FULL(name);
