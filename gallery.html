@@ -33,14 +33,14 @@
   }
   .frame img{
     display:block;max-width:100%;max-height:80vh;width:auto;height:auto;
-    opacity:0;transition:opacity 1.2s ease
+    opacity:0;transition:opacity .45s ease
   }
   .frame img.in{opacity:1}
   /* the slow drift — a still photograph that breathes */
-  .frame img.kb{animation:kenburns 14s ease-out forwards}
+  .frame img.kb{animation:kenburns 3.4s linear forwards}
   @keyframes kenburns{
-    from{transform:scale(1.005)}
-    to  {transform:scale(1.075)}
+    from{transform:scale(1.004)}
+    to  {transform:scale(1.035)}
   }
   .frame::after{ /* soft sheen across the glass */
     content:'';position:absolute;inset:0;pointer-events:none;border-radius:3px;
@@ -140,7 +140,7 @@
    landscapes both sit properly rather than being cropped to a fixed box.
 ------------------------------------------------------------------- */
 
-const HOLD = 6000;               // ms per photograph
+const HOLD = 3000;               // ms per photograph
 const img      = document.getElementById('photo');
 const frame    = document.getElementById('frame');
 const counter  = document.getElementById('counter');
@@ -227,8 +227,31 @@ function toggleFull(){
   document.fullscreenElement ? document.exitFullscreen()
                              : document.documentElement.requestFullscreen();
 }
+/* A plain shuffle clumps: three wedding photographs in a row is ordinary
+   luck, and it reads as though the reel is stuck in one album. Instead,
+   shuffle inside each album, then spread each album evenly across the whole
+   run — so a small album of six is scattered through the evening rather
+   than exhausted in the first minute, and neighbouring photographs almost
+   always come from different parts of their life. */
 function shuffle(){
-  order = order.map(v => [Math.random(), v]).sort((a,b) => a[0]-b[0]).map(p => p[1]);
+  const bySection = {};
+  GALLERY.forEach(n => {
+    const s = (typeof GALLERY_SECTION !== 'undefined' && GALLERY_SECTION[n]) || 'album';
+    (bySection[s] = bySection[s] || []).push(n);
+  });
+
+  const scored = [];
+  Object.values(bySection).forEach(items => {
+    /* random order within the album */
+    items.sort(() => Math.random() - 0.5);
+    /* then place each one at an even position through the whole reel,
+       nudged slightly so albums of the same size do not lock in step */
+    items.forEach((n, k) => {
+      scored.push([(k + 0.5) / items.length + (Math.random() - 0.5) * 0.04, n]);
+    });
+  });
+
+  order = scored.sort((a, b) => a[0] - b[0]).map(p => p[1]);
   show(0);
 }
 
