@@ -158,15 +158,28 @@ function show(n){
   i = (n + order.length) % order.length;
   img.classList.remove('in', 'kb');
 
-  const next = new Image();
-  next.onload = () => {
-    img.src = next.src;
-    /* restart the drift from scratch for each photograph */
+  /* Show the thumbnail the instant it lands (it is ~60KB), then swap in the
+     full photograph when it arrives. On a slow line the screen fills at once
+     instead of sitting black waiting for a 200KB+ image. */
+  const name = order[i];
+
+  const small = new Image();
+  small.onload = () => {
+    if (order[i] !== name) return;              // moved on already
+    img.src = small.src;
     void img.offsetWidth;
     img.classList.add('in', 'kb');
   };
+  small.src = GALLERY_THUMB(name);
+
+  const next = new Image();
+  next.onload = () => {
+    if (order[i] !== name) return;
+    img.src = next.src;                         // straight swap, no flicker
+    img.classList.add('in');
+  };
   next.onerror = () => { if (!paused) advance(1); };   // skip anything missing
-  next.src = GALLERY_FULL(order[i]);
+  next.src = GALLERY_FULL(name);
 
   counter.textContent = `${i + 1} / ${order.length}`;
   const sec = (typeof GALLERY_SECTION !== 'undefined') && GALLERY_SECTION[order[i]];
