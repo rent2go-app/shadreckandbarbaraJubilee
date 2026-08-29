@@ -27,7 +27,7 @@
 
 <section class="ticker" id="ticker" aria-label="Time remaining to share your story">
   <div class="wrap">
-    <p class="ticker-label" id="ticker-label">Stories close for the night in</p>
+    <p class="ticker-label" id="ticker-label">The celebration begins in</p>
     <div class="ticker-clock" id="ticker-clock" role="timer" aria-live="off">
       <div class="unit"><span class="num" id="t-d">--</span><span class="cap">days</span></div>
       <div class="unit"><span class="num" id="t-h">--</span><span class="cap">hours</span></div>
@@ -35,8 +35,8 @@
       <div class="unit"><span class="num" id="t-s">--</span><span class="cap">seconds</span></div>
     </div>
     <p class="ticker-foot">
-      Closing <strong>Friday 28 August</strong> &mdash; so your story can be played on the
-      screens and printed in the book.
+      <strong>Grand Palm Lodge, Bulawayo</strong> &mdash; and stories are still welcome,
+      tonight and long afterwards.
       <a href="share.html">Share yours now &rarr;</a>
     </p>
   </div>
@@ -68,19 +68,18 @@
   </div>
 </header>
 
-<aside class="deadline" aria-label="Submission deadline">
+<aside class="deadline" aria-label="Sharing your story">
   <div class="wrap narrow center">
-    <p class="deadline-label">Please share your story by</p>
-    <p class="deadline-date">Friday, 28 August</p>
+    <p class="deadline-label">Your story is still welcome</p>
+    <p class="deadline-date">Tonight &amp; Always</p>
     <div class="deadline-rule"></div>
     <p class="deadline-note">
-      Stories received by this date are read on the screens at the celebration
-      and printed in the Jubilee book.
+      Stories shared tonight are read on the screens at the celebration.
+      Everything that arrives afterwards still reaches Gogo and Khulu Nkala,
+      and is kept in the family archive.
     </p>
-    <p><span class="deadline-days" id="deadline-days"></span></p>
-    <p class="deadline-after" id="deadline-after">
-      Later than that is still welcome — it simply won&rsquo;t be played on the night.
-      Every story, whenever it arrives, still reaches Gogo and Khulu Nkala to read.
+    <p class="deadline-after">
+      There is no cut-off. Fifty years takes more than one evening to tell.
     </p>
   </div>
 </aside>
@@ -153,7 +152,7 @@
       <dl class="details">
         <div><dt>Date</dt><dd>Saturday, 29 August 2026</dd></div>
         <div><dt>Venue</dt><dd>Grand Palm Lodge, Bulawayo</dd></div>
-        <div><dt>Time</dt><dd>Guests arrive 3:00 PM &middot; Programme 3:30 PM</dd></div>
+        <div><dt>Time</dt><dd>Reception from 3:30 PM &middot; Programme begins 5:00 PM</dd></div>
         <div><dt>RSVP</dt><dd>+263 77 2 650 150 &middot; +263 78 2 650 150</dd></div>
       </dl>
       <a class="btn ghost" href="share.html">Send your story ahead</a>
@@ -223,11 +222,11 @@ async function load(){ paint(await fetchPublicStories({ surface: 'landing', limi
   const pad = n => String(n).padStart(2, '0');
 
   function tick(){
-    const left = DEADLINE - new Date();
+    const left = EVENT_START - new Date();
 
     if (left <= 0){
       strip.classList.add('closed');
-      label.textContent = 'Stories are closed for the night — but still very welcome for Gogo & Khulu to read';
+      label.textContent = 'The celebration is under way — Grand Palm Lodge, Bulawayo';
       clearInterval(handle);
       return;
     }
@@ -240,26 +239,6 @@ async function load(){ paint(await fetchPublicStories({ surface: 'landing', limi
 
   tick();
   const handle = setInterval(tick, 1000);
-})();
-
-/* Days left to submit. Closes end of Friday 28 August 2026 (CAT / UTC+2);
-   after that the band stops counting and softens its wording, so nobody
-   who arrives late is told they have missed their chance. */
-(function deadline(){
-  const pill  = document.getElementById('deadline-days');
-  const after = document.getElementById('deadline-after');
-  const cutoff = new Date('2026-08-28T23:59:59+02:00');
-  const days = Math.ceil((cutoff - new Date()) / 86400000);
-
-  if (days > 1)       pill.textContent = `${days} days left to be part of the night`;
-  else if (days === 1) pill.textContent = 'Last day to be part of the night';
-  else if (days === 0) pill.textContent = 'Closing today';
-  else {
-    pill.textContent = 'The screen list is now closed';
-    pill.classList.add('closed');
-    after.innerHTML = 'Stories are still very welcome. They won&rsquo;t be played on the night, ' +
-      'but every one still reaches Gogo and Khulu Nkala to read, and joins the family archive.';
-  }
 })();
 
 /* Countdown to the celebration: Saturday 29 August 2026, 15:00 (CAT / UTC+2) */

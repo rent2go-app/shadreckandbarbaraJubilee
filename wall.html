@@ -177,15 +177,25 @@ function qrSlide(){
 
 const trim = (t, n) => (t || '').length > n ? (t.slice(0, n).replace(/\s+\S*$/, '') + '…') : (t || '');
 
-function show(html){
-  slideEl.classList.remove('in');
-  const style = settings.transition_style;
-  const wait  = style === 'none' ? 0 : 600;
-  setTimeout(() => {
+let swapTimer = null;
+
+/* `immediate` skips the fade — used when someone is stepping through with
+   the arrow keys. Holding an arrow down should move as fast as the reader
+   can look, not wait 600ms a story. The pending swap is always cleared
+   first, so rapid presses can never land out of order. */
+function show(html, immediate = false){
+  clearTimeout(swapTimer);
+  const paint = () => {
     slideEl.innerHTML = html;
     fitMessage();                              // size the type before it fades in
     requestAnimationFrame(() => slideEl.classList.add('in'));
-  }, wait);
+  };
+
+  if (immediate){ slideEl.classList.remove('in'); paint(); return; }
+
+  slideEl.classList.remove('in');
+  const wait = settings.transition_style === 'none' ? 0 : 600;
+  swapTimer = setTimeout(paint, wait);
 }
 
 function paintCounter(){
@@ -196,20 +206,20 @@ function paintCounter(){
 
 /* ---------- rotation ---------- */
 
-function next(step = 1){
+function next(step = 1, immediate = false){
   if (!queue.length){
     show(`<div class="center" style="grid-column:1/-1">
             <img class="wall-crest" src="assets/event-logo.png" alt="">
             <p class="serif" style="font-size:3rem;color:var(--gold-lt)">${esc(settings.headline)}</p>
             <p style="letter-spacing:.3em;text-transform:uppercase;color:#8b8069">The first story is on its way</p>
-          </div>`);
+          </div>`, immediate);
     schedule();
     return;
   }
 
   if (settings.enable_qr_slide && step > 0 && shownSince >= settings.qr_frequency){
     shownSince = 0;
-    show(qrSlide());
+    show(qrSlide(), immediate);
     schedule();
     return;
   }
@@ -219,7 +229,7 @@ function next(step = 1){
 
   shownSince++;
   const story = queue[index];
-  show(storySlide(story));
+  show(storySlide(story), immediate);
   paintCounter();
   schedule(readingTime(story));
 }
@@ -267,8 +277,11 @@ document.addEventListener('keydown', e => {
     if (paused){ clearTimeout(timer); clearInterval(ticker); toast('Paused'); }
     else { toast('Resumed'); schedule(); }
   }
-  if (e.key === 'ArrowRight'){ next(1); }
-  if (e.key === 'ArrowLeft') { next(-1); }
+  /* instant, and auto-repeats while the key is held down */
+  if (e.key === 'ArrowRight' || e.key === 'PageDown'){ e.preventDefault(); next(1, true); }
+  if (e.key === 'ArrowLeft'  || e.key === 'PageUp'){   e.preventDefault(); next(-1, true); }
+  if (e.key === 'Home'){ index = -1; next(1, true); }
+  if (e.key === 'End'){  index = queue.length - 2; next(1, true); }
   if (e.key === 'm' || e.key === 'M'){ toggleMusic(); }
   if (e.key === 'Escape' && !document.fullscreenElement){ location.href = 'index.html'; }
 });

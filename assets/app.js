@@ -271,21 +271,23 @@ const NAV_LINKS = [
   { key: 'admin',     href: 'admin.html',   label: 'Family login' }
 ];
 
-/* Submission deadline — end of Friday 28 August 2026 (CAT). One source of
-   truth for the top bar and the landing-page band. */
-const DEADLINE = new Date('2026-08-28T23:59:59+02:00');
-const deadlineDaysLeft = () => Math.ceil((DEADLINE - new Date()) / 86400000);
+/* The celebration. Stories are never closed — they simply stop being
+   played on the night once the evening is over. */
+const EVENT_START = new Date('2026-08-29T17:00:00+02:00');
 
 function deadlineBar(){
-  const d = deadlineDaysLeft();
-  const urgent = d >= 0 && d <= 7;
-  const line = d > 1  ? `Share your story by <strong>Friday 28 August</strong> &nbsp;&middot;&nbsp; ${d} days left`
-             : d === 1 ? `<strong>Last day</strong> to share your story &mdash; Friday 28 August`
-             : d === 0 ? `<strong>Today is the last day</strong> to share your story`
-             : `Stories are still welcome &mdash; they reach Gogo &amp; Khulu, but are not played on the night`;
-  return `<a class="topbar${urgent ? ' urgent' : ''}${d < 0 ? ' closed' : ''}" href="share.html">
-            <span>${line}</span>
-          </a>`;
+  /* The celebration itself: Saturday 29 August 2026, 5:00 PM (CAT). */
+  const start = new Date('2026-08-29T17:00:00+02:00');
+  const now = new Date();
+  const mins = Math.round((start - now) / 60000);
+
+  let line;
+  if (mins > 90)      line = `Tonight at <strong>5:00 PM</strong> &nbsp;&middot;&nbsp; Grand Palm Lodge &nbsp;&middot;&nbsp; stories still welcome`;
+  else if (mins > 0)  line = `<strong>Starting soon</strong> &nbsp;&middot;&nbsp; 5:00 PM tonight &nbsp;&middot;&nbsp; stories still welcome`;
+  else if (mins > -360) line = `<strong>The celebration is under way</strong> &nbsp;&middot;&nbsp; share your story now`;
+  else                line = `<strong>Stories are always welcome</strong> &nbsp;&middot;&nbsp; add yours to the family archive`;
+
+  return `<a class="topbar" href="share.html"><span>${line}</span></a>`;
 }
 
 function mountNav(active = ''){
