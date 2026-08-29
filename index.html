@@ -179,7 +179,7 @@
   <div class="wrap">
     <img class="crest" src="assets/event-logo.png" alt="Barbara &amp; Shadreck 50th Anniversary Golden Jubilee crest">
     <p class="small">Golden Jubilee &middot; Saturday 29 August 2026 &middot; Grand Palm Lodge, Bulawayo</p>
-    <p class="small">Guests arrive 3:00 PM &middot; Programme starts 3:30 PM</p>
+    <p class="small">Reception from 3:30 PM &middot; Programme begins 5:00 PM</p>
     <p class="small" style="margin-top:1.6rem">
       Every story is kept privately by the family. Contact details are never shown publicly.
       <br><a href="admin.html">Family administration</a>
@@ -241,11 +241,11 @@ async function load(){ paint(await fetchPublicStories({ surface: 'landing', limi
   const handle = setInterval(tick, 1000);
 })();
 
-/* Countdown to the celebration: Saturday 29 August 2026, 15:00 (CAT / UTC+2) */
+/* Countdown to the celebration. The start time is EVENT_START in app.js —
+   never restate it here, or this line drifts away from the clock above. */
 (function countdown(){
   const el = document.getElementById('countdown');
-  const event = new Date('2026-08-29T15:00:00+02:00');
-  const days = Math.ceil((event - new Date()) / 86400000);
+  const days = Math.ceil((EVENT_START - new Date()) / 86400000);
   el.textContent = days > 1  ? `${days} days until the celebration`
                  : days === 1 ? 'Tomorrow — Grand Palm Lodge, Bulawayo'
                  : days === 0 ? 'Today — Grand Palm Lodge, Bulawayo'
