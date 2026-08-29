@@ -152,7 +152,26 @@ let order = GALLERY.slice();
 let i = 0, paused = false, timer = null, ticker = null;
 
 /* Preload the next one so the change is never a blank frame. */
-function preload(n){ const p = new Image(); p.src = GALLERY_FULL(order[n % order.length]); }
+/* Keep the upcoming photographs alive in a cache, fully decoded, so that
+   when their turn comes there is nothing left for the browser to do. A
+   decode on the main thread while the drift is already running is what
+   makes each photograph start with a jerk. */
+const READY = new Map();
+
+function preload(n){
+  for (let k = 1; k <= 3; k++){
+    const name = order[(n + k - 1) % order.length];
+    if (READY.has(name)) continue;
+    const im = new Image();
+    im.src = GALLERY_FULL(name);
+    const done = im.decode ? im.decode().catch(() => {}) : Promise.resolve();
+    READY.set(name, done.then(() => im));
+  }
+  /* do not hold the whole album in memory */
+  if (READY.size > 12){
+    for (const k of READY.keys()){ READY.delete(k); if (READY.size <= 12) break; }
+  }
+}
 
 function show(n){
   i = (n + order.length) % order.length;
@@ -193,20 +212,34 @@ function show(n){
 
   /* The thumbnail lands almost at once (~60KB) so the screen never sits
      black; the full photograph replaces it underneath the same drift. */
-  const small = new Image();
-  small.onload = () => {
-    if (order[i] === name) paint(small.src, small.naturalWidth, small.naturalHeight, true);
-  };
-  small.src = GALLERY_THUMB(name);
+  /* If the photograph is already decoded and waiting, show it straight away.
+     No thumbnail, no swap part-way through the drift — the animation starts
+     on a picture the browser has nothing left to do to. */
+  const ready = READY.get(name);
+  if (ready){
+    ready.then(im => {
+      if (order[i] !== name) return;
+      if (im && im.naturalWidth) paint(im.src, im.naturalWidth, im.naturalHeight, true);
+      else if (!paused) advance(1);             // skip anything missing
+    });
+  } else {
+    /* not cached yet: thumbnail first so the screen is never black, then
+       the full file — decoded before it is put on screen. */
+    const small = new Image();
+    small.onload = () => {
+      if (order[i] === name && !img.classList.contains('in'))
+        paint(small.src, small.naturalWidth, small.naturalHeight, true);
+    };
+    small.src = GALLERY_THUMB(name);
 
-  const next = new Image();
-  next.onload = () => {
-    if (order[i] !== name) return;
-    const shown = img.classList.contains('in');
-    paint(next.src, next.naturalWidth, next.naturalHeight, !shown);
-  };
-  next.onerror = () => { if (!paused) advance(1); };   // skip anything missing
-  next.src = GALLERY_FULL(name);
+    const next = new Image();
+    next.src = GALLERY_FULL(name);
+    (next.decode ? next.decode().catch(() => {}) : Promise.resolve()).then(() => {
+      if (order[i] !== name || !next.naturalWidth) return;
+      paint(next.src, next.naturalWidth, next.naturalHeight, !img.classList.contains('in'));
+    });
+    next.onerror = () => { if (!paused) advance(1); };
+  }
 
   counter.textContent = `${i + 1} / ${order.length}`;
   const sec = (typeof GALLERY_SECTION !== 'undefined') && GALLERY_SECTION[order[i]];
